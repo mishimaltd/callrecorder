@@ -21,7 +21,7 @@ public class AccountServiceClientImpl implements AccountServiceClient {
   @Override
   public Optional<String> getAccountIdByPhoneNumber(String phoneNumber) {
     log.info("Looking up account id for phone number {}", phoneNumber);
-    String requestUrl = uri + "/getAccountIdByPhoneNumber?phoneNumber=" + encodeParameter(phoneNumber);
+    String requestUrl = uri + "/getAccountIdByPhoneNumber?phoneNumber=" + phoneNumber;
     ResponseEntity<String> response = restTemplate.getForEntity(requestUrl, String.class);
     if(response.getStatusCodeValue() == 200) {
       String accountId = response.getBody();
@@ -30,15 +30,6 @@ public class AccountServiceClientImpl implements AccountServiceClient {
     } else {
       log.error("Received error {} looking up account id for phone number {}", response.getStatusCode());
       return Optional.empty();
-    }
-  }
-
-  private String encodeParameter(String parameter) {
-    try {
-      return URLEncoder.encode(parameter, "utf-8");
-    } catch( UnsupportedEncodingException ex ) {
-      log.error("Unsupported encoding exception {}", ex);
-      return parameter;
     }
   }
 
