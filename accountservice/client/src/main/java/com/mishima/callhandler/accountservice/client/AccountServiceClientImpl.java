@@ -1,5 +1,7 @@
 package com.mishima.callhandler.accountservice.client;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,7 @@ public class AccountServiceClientImpl implements AccountServiceClient {
   public Optional<String> getAccountIdByPhoneNumber(String phoneNumber) {
     log.info("Looking up account id for phone number {}", phoneNumber);
     String requestUrl = uri + "/getAccountIdByPhoneNumber?phoneNumber={phoneNumber}";
-    ResponseEntity<String> response = restTemplate.getForEntity(requestUrl, String.class, phoneNumber);
+    ResponseEntity<String> response = restTemplate.getForEntity(requestUrl, String.class, encodeParameter(phoneNumber));
     if(response.getStatusCodeValue() == 200) {
       String accountId = response.getBody();
       log.info("Got account id {} for phone number {}", accountId, phoneNumber);
@@ -30,4 +32,14 @@ public class AccountServiceClientImpl implements AccountServiceClient {
       return Optional.empty();
     }
   }
+
+  private String encodeParameter(String parameter) {
+    try {
+      return URLEncoder.encode(parameter, "utf-8");
+    } catch( UnsupportedEncodingException ex ) {
+      log.error("Unsupported encoding exception {}", ex);
+      return parameter;
+    }
+  }
+
 }
