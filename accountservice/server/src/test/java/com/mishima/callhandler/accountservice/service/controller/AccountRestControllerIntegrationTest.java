@@ -34,7 +34,7 @@ public class AccountRestControllerIntegrationTest {
   private AccountRepository accountRepository;
 
   private String username = "myusername";
-  private List<String> phoneNumbers = Arrays.asList("11223344", "22334455");
+  private List<String> phoneNumbers = Arrays.asList("+11223344", "+22334455");
 
   private Account account;
 

@@ -21,8 +21,8 @@ public class AccountServiceClientImpl implements AccountServiceClient {
   @Override
   public Optional<String> getAccountIdByPhoneNumber(String phoneNumber) {
     log.info("Looking up account id for phone number {}", phoneNumber);
-    String requestUrl = uri + "/getAccountIdByPhoneNumber?phoneNumber={phoneNumber}";
-    ResponseEntity<String> response = restTemplate.getForEntity(requestUrl, String.class, encodeParameter(phoneNumber));
+    String requestUrl = uri + "/getAccountIdByPhoneNumber?phoneNumber=" + encodeParameter(phoneNumber);
+    ResponseEntity<String> response = restTemplate.getForEntity(requestUrl, String.class);
     if(response.getStatusCodeValue() == 200) {
       String accountId = response.getBody();
       log.info("Got account id {} for phone number {}", accountId, phoneNumber);
