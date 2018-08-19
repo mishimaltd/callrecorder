@@ -15,6 +15,7 @@ import com.twilio.twiml.TwiMLException;
 import com.twilio.twiml.VoiceResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -77,35 +78,14 @@ public class TwilioRestController {
 
   @ResponseBody
   @PostMapping(value = "/status", produces = MediaType.APPLICATION_XML_VALUE)
-  public ResponseEntity<byte[]> status(@RequestParam("CallSid") String callSid,
-      @RequestParam("From") String from, @RequestParam("CallStatus") String callStatus) throws TwiMLException {
-    log.info("Received status {} for call sid {}", callStatus, callSid);
-    // Just
-
-
-
-    VoiceResponse response;
-    // Check there is an account associated with the inbound number
-    Optional<String> accountId = accountServiceClient.getAccountIdByPhoneNumber(from);
-    if(!accountId.isPresent()) {
-      log.info("No account found for incoming call from {}", from);
-      response = new VoiceResponse.Builder().say(noAccount()).build();
-    } else {
-      // Publish call initiated event
-      log.info("Publishing call initiated event.");
-      eventPublisher.publish(Event.builder()
-          .eventType(EventType.CallInitiated)
-          .attribute("AccountId", accountId.get())
-          .attribute("CallSid", callSid)
-          .attribute("From", from)
-          .attribute("Timestamp", System.currentTimeMillis())
-          .build());
-      // Generate response
-      Gather gather = new Gather.Builder().action(baseUrl + "/confirm?AccountId=" + accountId.get()).method(Method.POST)
-          .timeout(20).say(instructions()).build();
-      response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
+  public ResponseEntity<byte[]> status(HttpServletRequest request) {
+    log.info("Received status update");
+    log.info("========================");
+    for(String key: request.getParameterMap().keySet()) {
+      log.info(key + " -> " + request.getParameter(key));
     }
-    return buildResponseEntity(response.toXml());
+    log.info("========================");
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @ResponseBody
