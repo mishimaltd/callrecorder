@@ -15,14 +15,14 @@ public class Event {
 
   public enum EventType {
     CallInitiated,
-    NumberToDialReceived,
-    NoNumberToDialReceived,
-    NumberToDialConfirmed,
-    NumberToDialNotConfirmed,
-    CallEnded,
     CallRecordingCompleted,
-    CallRecordingStorageCompleted,
-    CallTranscriptionCompleted
+    CallEnded,
+    CallRecordingUploaded,
+    CallTranscriptionSubmitted,
+    CallTranscriptionCompleted,
+    BillingSubmitted,
+    BillingCompleted,
+    InvoiceCompleted
   }
 
   private EventType eventType;

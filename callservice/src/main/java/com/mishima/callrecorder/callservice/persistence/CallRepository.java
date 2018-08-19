@@ -5,4 +5,6 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface CallRepository extends CrudRepository<Call, String> {
 
+  Call findBySid(String sid);
+
 }

@@ -15,7 +15,6 @@ import com.twilio.twiml.TwiMLException;
 import com.twilio.twiml.VoiceResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,7 +65,6 @@ public class TwilioRestController {
           .attribute("AccountId", accountId.get())
           .attribute("CallSid", callSid)
           .attribute("From", from)
-          .attribute("Timestamp", System.currentTimeMillis())
           .build());
       // Generate response
       Gather gather = new Gather.Builder().action(baseUrl + "/confirm?AccountId=" + accountId.get()).method(Method.POST)
@@ -77,14 +75,16 @@ public class TwilioRestController {
   }
 
   @ResponseBody
-  @PostMapping(value = "/status", produces = MediaType.APPLICATION_XML_VALUE)
-  public ResponseEntity<byte[]> status(HttpServletRequest request) {
-    log.info("Received status update");
-    log.info("========================");
-    for(String key: request.getParameterMap().keySet()) {
-      log.info(key + " -> " + request.getParameter(key));
-    }
-    log.info("========================");
+  @PostMapping(value = "/completed", produces = MediaType.APPLICATION_XML_VALUE)
+  public ResponseEntity<byte[]> completed(@RequestParam("CallSid") String callSid, @RequestParam("Duration") int duration) {
+    log.info("Received call completed for call sid {}, duration {}", callSid, duration);
+    // Publish call ended event
+    log.info("Publishing call initiated event.");
+    eventPublisher.publish(Event.builder()
+      .eventType(EventType.CallEnded)
+      .attribute("CallSid", callSid)
+      .attribute("Duration", duration)
+      .build());
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
@@ -151,11 +151,13 @@ public class TwilioRestController {
   @PostMapping(value = "/recording", produces = MediaType.APPLICATION_XML_VALUE)
   public ResponseEntity<byte[]> recording(
                        @RequestParam("CallSid") String callSid,
-                       @RequestParam("DialCallSid") String dialCallSid,
-                       @RequestParam("DialCallStatus") String dialCallStatus,
-                       @RequestParam("DialCallDuration") int dialCallDuration,
                        @RequestParam("RecordingUrl") String recordingUrl) {
-    log.info("Received call sid {}, dial call sid {}, status {}, recording url {}", callSid, dialCallSid, dialCallStatus, recordingUrl);
+    log.info("Received call sid {}, recording url {}", callSid, recordingUrl);
+    eventPublisher.publish(Event.builder()
+      .eventType(EventType.CallRecordingCompleted)
+      .attribute("CallSid", callSid)
+      .attribute("RecordingUrl", recordingUrl)
+      .build());
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
