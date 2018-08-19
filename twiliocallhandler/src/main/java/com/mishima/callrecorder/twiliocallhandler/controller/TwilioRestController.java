@@ -79,7 +79,7 @@ public class TwilioRestController {
   public ResponseEntity<byte[]> completed(@RequestParam("CallSid") String callSid, @RequestParam("Duration") int duration) {
     log.info("Received call completed for call sid {}, duration {}", callSid, duration);
     // Publish call ended event
-    log.info("Publishing call initiated event.");
+    log.info("Publishing call completed event.");
     eventPublisher.publish(Event.builder()
       .eventType(EventType.CallEnded)
       .attribute("CallSid", callSid)
