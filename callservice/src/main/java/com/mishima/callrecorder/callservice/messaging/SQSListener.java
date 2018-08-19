@@ -21,10 +21,12 @@ public class SQSListener implements MessageListener {
   private final ObjectMapper om = new ObjectMapper();
 
   public void onMessage(Message message) {
-    log.info("Processing message...");
+    log.info("Processing message {}", message);
     TextMessage textMessage = (TextMessage)message;
     try {
-      Event event = om.readValue(textMessage.getText(), new TypeReference<Event>(){});
+      String text = textMessage.getText();
+      log.info("Received text {}", text);
+      Event event = om.readValue(text, new TypeReference<Event>(){});
       eventHandler.handle(event);
     } catch(Exception ex) {
       log.error("Error occurred processing message -> {}", ex);
