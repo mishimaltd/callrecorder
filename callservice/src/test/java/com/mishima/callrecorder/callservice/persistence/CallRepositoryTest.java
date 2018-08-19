@@ -21,7 +21,6 @@ public class CallRepositoryTest {
   private CallRepository callRepository;
 
   private String callSid = "123445";
-
   private Call call;
 
   @Before
