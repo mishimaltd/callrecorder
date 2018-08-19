@@ -4,6 +4,7 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.PublishResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mishima.callrecorder.domain.entity.Event;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +17,7 @@ public class EventPublisher {
   @Autowired
   private AmazonSNS amazonSNS;
 
-  @Value("${event.topic.arn")
+  @Value("${event.topic.arn}")
   private String topic;
 
   @Value("${event.publishing.enabled}")
@@ -24,10 +25,10 @@ public class EventPublisher {
 
   private final ObjectMapper om = new ObjectMapper();
 
-  public void publish(Object message) {
+  public void publish(Event event) {
     if(!enabled) return;
     try {
-      String payload = om.writeValueAsString(message);
+      String payload = om.writeValueAsString(event);
       PublishRequest publishRequest = new PublishRequest(topic, payload);
       PublishResult result = amazonSNS.publish(publishRequest);
       log.info("Published message id {}", result.getMessageId());

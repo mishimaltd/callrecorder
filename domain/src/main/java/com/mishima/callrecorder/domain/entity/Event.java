@@ -1,4 +1,4 @@
-package com.mishima.callrecorder.twiliocallhandler.publisher;
+package com.mishima.callrecorder.domain.entity;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -39,6 +39,8 @@
   <modules>
     <module>twiliocallhandler</module>
     <module>accountservice</module>
+    <module>callservice</module>
+    <module>domain</module>
   </modules>
 
 </project>

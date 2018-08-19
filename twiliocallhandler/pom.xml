@@ -26,6 +26,11 @@
   <dependencies>
     <dependency>
       <groupId>com.mishima</groupId>
+      <artifactId>domain</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.mishima</groupId>
       <artifactId>accountservice-client</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -41,10 +46,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-jms</artifactId>
     </dependency>
     <dependency>
       <groupId>com.twilio.sdk</groupId>
