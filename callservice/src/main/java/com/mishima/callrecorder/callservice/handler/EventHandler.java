@@ -23,6 +23,9 @@ public class EventHandler {
       case CallEnded:
         endCall(event);
         break;
+      case CallRecordingCompleted:
+        recordingCompleted(event);
+        break;
       default:
         log.info("Unknown event type {}", event.getEventType());
     }
@@ -51,6 +54,10 @@ public class EventHandler {
     } else {
       log.error("Error occurred ending call, could not find call by sid {}", callSid);
     }
+  }
+
+  private void recordingCompleted(Event event) {
+
   }
 
 }
