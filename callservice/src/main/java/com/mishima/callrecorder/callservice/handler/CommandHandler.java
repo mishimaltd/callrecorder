@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 @Component
 @Slf4j
@@ -51,11 +52,17 @@ public class CommandHandler {
           uploaded = true;
           log.info("Uploaded recording from url {} to fileKey {}", recordingUrl, fileKey);
 
+          // Delete from Twilio
+          new RestTemplate().delete(recordingUrl + ".json");
+          log.info("Deleted recording url {} from Twilio", recordingUrl);
+
           // Publish recording uploaded to s3
           eventPublisher.publish(Event.builder()
             .eventType(EventType.CallRecordingUploaded)
             .attribute("CallSid", recordingUploadCommand.getCallSid())
-            .attribute("S3FileKey", fileKey).build());
+            .attribute("RecordingUrl", recordingUrl)
+            .attribute("S3FileKey", fileKey)
+            .build());
 
         } catch( Exception ex ) {
           log.warn("Exception occurred processing recording {} -> {}, retrying in {}ms..", recordingUrl, ex, UPLOAD_RETRY_WAIT_MS);
@@ -73,11 +80,10 @@ public class CommandHandler {
         eventPublisher.publish(Event.builder()
             .eventType(EventType.Error)
             .attribute("CallSid", recordingUploadCommand.getCallSid())
-            .attribute("Message", message).build());
+            .attribute("Message", message)
+            .build());
       }
     });
-
   }
-
 
 }

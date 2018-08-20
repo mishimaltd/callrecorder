@@ -86,6 +86,7 @@ public class EventHandler {
   private void recordingUploaded(Event event) {
     String callSid = (String)event.getAttributes().get("CallSid");
     String s3FileKey = (String)event.getAttributes().get("S3FileKey");
+    String recordingUrl = (String)event.getAttributes().get("RecordingUrl");
     Call call = callService.findBySid(callSid);
     if(call != null) {
       call.setStatus("RecordingUploaded");
