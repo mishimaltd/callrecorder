@@ -26,7 +26,7 @@ public class S3Service {
   private String bucketName;
 
   public String upload(InputStream is, String contentType) {
-    String keyName = UUID.randomUUID().toString() + ".wav";
+    String keyName = UUID.randomUUID().toString();
     ObjectMetadata metadata = new ObjectMetadata();
     metadata.setContentType(contentType);
     PutObjectRequest request = new PutObjectRequest(bucketName, keyName, is, metadata);

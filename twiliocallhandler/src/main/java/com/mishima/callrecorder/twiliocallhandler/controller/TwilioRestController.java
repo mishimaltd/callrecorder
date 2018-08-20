@@ -141,12 +141,12 @@ public class TwilioRestController {
           response = new VoiceResponse.Builder().say(say).dial(dial).build();
           // Add recording status callback url
           String xml = response.toXml();
-          String recordingStatusCallbackUrl = baseUrl + "/recording?CallSid=" + callSid;
+          String recordingStatusCallbackUrl = baseUrl + "/recording";
           String decorated = decorator.decorate(xml, recordingStatusCallbackUrl);
           return buildResponseEntity(decorated);
         }
       } else {
-        log.info("Caller did not confirm number, ask for 7digits again");
+        log.info("Caller did not confirm number, ask for digits again");
         Gather gather = new Gather.Builder().action(baseUrl + "/confirm").method(Method.POST)
             .timeout(20).say(instructions()).build();
         response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();

@@ -104,7 +104,7 @@ public class TwilioRestControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_XML))
         .andExpect(content().xml(
-            "<Response><Say voice=\"alice\">Connecting your call.</Say><Dial timeout=\"30\" callerId=\"9195924466\" record=\"record-from-answer\" recordingStatusCallback=\"http://localhost:8080/api/recording?CallSid=12345\" recordingStatusCallbackMethod=\"POST\"><Number>9196658899</Number></Dial></Response>"
+            "<Response><Say voice=\"alice\">Connecting your call.</Say><Dial timeout=\"30\" callerId=\"9195924466\" record=\"record-from-answer\" recordingStatusCallback=\"http://localhost:8080/api/recording\" recordingStatusCallbackMethod=\"POST\"><Number>9196658899</Number></Dial></Response>"
         ));
   }
 
