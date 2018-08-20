@@ -3,7 +3,7 @@ package com.mishima.callrecorder.callservice.messaging;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mishima.callrecorder.callservice.handler.EventHandler;
-import com.mishima.callrecorder.domain.entity.Event;
+import com.mishima.callrecorder.event.entity.Event;
 import java.util.Map;
 import javax.jms.Message;
 import javax.jms.MessageListener;

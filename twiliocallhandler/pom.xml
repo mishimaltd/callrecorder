@@ -19,14 +19,13 @@
     <twilio-java-sdk.version>7.0.0-rc-10</twilio-java-sdk.version>
     <twilio.version>7.23.1</twilio.version>
     <libphonenumber.version>8.9.9</libphonenumber.version>
-    <aws-java-sdk.version>1.11.109</aws-java-sdk.version>
-    <aws-java-sdk-sns.version>1.11.160</aws-java-sdk-sns.version>
+    <xstream.version>1.2.2</xstream.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>com.mishima</groupId>
-      <artifactId>domain</artifactId>
+      <artifactId>event</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -58,19 +57,14 @@
       <version>${twilio.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk-sns</artifactId>
-      <version>${aws-java-sdk-sns.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk-core</artifactId>
-      <version>${aws-java-sdk.version}</version>
-    </dependency>
-    <dependency>
       <groupId>com.googlecode.libphonenumber</groupId>
       <artifactId>libphonenumber</artifactId>
       <version>${libphonenumber.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jdom</groupId>
+      <artifactId>jdom</artifactId>
+      <version>1.1</version>
     </dependency>
   </dependencies>
 

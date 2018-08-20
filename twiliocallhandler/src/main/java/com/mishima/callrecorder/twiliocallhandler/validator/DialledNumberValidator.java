@@ -22,7 +22,7 @@ public class DialledNumberValidator {
         if(phoneNumberType.equals(PhoneNumberType.PREMIUM_RATE)) {
           log.info("Phone number {} is a premium rate number", phoneNumber);
         } else {
-          log.info("Phone number {} is valid!");
+          log.info("Phone number {} is valid!", phoneNumber);
           return true;
         }
       } else {

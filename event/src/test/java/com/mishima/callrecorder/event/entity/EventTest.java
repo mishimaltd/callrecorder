@@ -1,8 +1,8 @@
-package com.mishima.callrecorder.domain.entity;
+package com.mishima.callrecorder.event.entity;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mishima.callrecorder.domain.entity.Event.EventType;
+import com.mishima.callrecorder.event.entity.Event.EventType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 

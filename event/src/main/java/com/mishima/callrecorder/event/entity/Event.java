@@ -1,4 +1,4 @@
-package com.mishima.callrecorder.domain.entity;
+package com.mishima.callrecorder.event.entity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,8 @@ public class Event {
     CallTranscriptionCompleted,
     BillingSubmitted,
     BillingCompleted,
-    InvoiceCompleted
+    InvoiceCompleted,
+    Error
   }
 
   private EventType eventType;

@@ -1,9 +1,10 @@
 package com.mishima.callrecorder.twiliocallhandler.controller;
 
 import com.mishima.callhandler.accountservice.client.AccountServiceClient;
-import com.mishima.callrecorder.domain.entity.Event;
-import com.mishima.callrecorder.domain.entity.Event.EventType;
-import com.mishima.callrecorder.twiliocallhandler.publisher.EventPublisher;
+import com.mishima.callrecorder.event.entity.Event;
+import com.mishima.callrecorder.event.entity.Event.EventType;
+import com.mishima.callrecorder.event.publisher.EventPublisher;
+import com.mishima.callrecorder.twiliocallhandler.decorator.TwiMLDecorator;
 import com.mishima.callrecorder.twiliocallhandler.validator.DialledNumberValidator;
 import com.twilio.twiml.Dial;
 import com.twilio.twiml.Gather;
@@ -45,6 +46,8 @@ public class TwilioRestController {
 
   @Value("${twilio.baseUrl}")
   private String baseUrl;
+
+  private TwiMLDecorator decorator = new TwiMLDecorator();
 
   @ResponseBody
   @PostMapping(value = "/receive", produces = MediaType.APPLICATION_XML_VALUE)
@@ -133,12 +136,17 @@ public class TwilioRestController {
           response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
         } else {
           Say say = say("Connecting your call.");
-          Dial dial = new Dial.Builder().callerId(from).action(baseUrl + "/recording?CallSid=" + callSid).method(Method.POST)
-              .record(Dial.Record.RECORD_FROM_ANSWER).timeout(30).number(new Number.Builder(number).build()).build();
+          Dial dial = new Dial.Builder().callerId(from).record(Dial.Record.RECORD_FROM_ANSWER).timeout(30)
+              .number(new Number.Builder(number).build()).build();
           response = new VoiceResponse.Builder().say(say).dial(dial).build();
+          // Add recording status callback url
+          String xml = response.toXml();
+          String recordingStatusCallbackUrl = baseUrl + "/recording?CallSid=" + callSid;
+          String decorated = decorator.decorate(xml, recordingStatusCallbackUrl);
+          return buildResponseEntity(decorated);
         }
       } else {
-        log.info("Caller did not confirm number, ask for digits again");
+        log.info("Caller did not confirm number, ask for 7digits again");
         Gather gather = new Gather.Builder().action(baseUrl + "/confirm").method(Method.POST)
             .timeout(20).say(instructions()).build();
         response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
@@ -151,13 +159,17 @@ public class TwilioRestController {
   @PostMapping(value = "/recording", produces = MediaType.APPLICATION_XML_VALUE)
   public ResponseEntity<byte[]> recording(
                        @RequestParam("CallSid") String callSid,
-                       @RequestParam("RecordingUrl") String recordingUrl) {
-    log.info("Received call sid {}, recording url {}", callSid, recordingUrl);
-    eventPublisher.publish(Event.builder()
-      .eventType(EventType.CallRecordingCompleted)
-      .attribute("CallSid", callSid)
-      .attribute("RecordingUrl", recordingUrl)
-      .build());
+                       @RequestParam("RecordingUrl") String recordingUrl,
+                       @RequestParam("RecordingStatus") String recordingStatus) {
+    log.info("Received call sid {}, status {}, recording url {}", callSid, recordingStatus, recordingUrl);
+    if("completed".equals(recordingStatus)) {
+      log.info("Publishing recording completed event for call sid {}", callSid);
+      eventPublisher.publish(Event.builder()
+          .eventType(EventType.CallRecordingCompleted)
+          .attribute("CallSid", callSid)
+          .attribute("RecordingUrl", recordingUrl)
+          .build());
+    }
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

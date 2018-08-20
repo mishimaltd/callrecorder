@@ -40,7 +40,7 @@
     <module>twiliocallhandler</module>
     <module>accountservice</module>
     <module>callservice</module>
-    <module>domain</module>
+    <module>event</module>
   </modules>
 
 </project>

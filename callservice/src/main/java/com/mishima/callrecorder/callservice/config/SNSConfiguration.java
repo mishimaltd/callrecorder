@@ -1,4 +1,4 @@
-package com.mishima.callrecorder.twiliocallhandler.config;
+package com.mishima.callrecorder.callservice.config;
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Regions;

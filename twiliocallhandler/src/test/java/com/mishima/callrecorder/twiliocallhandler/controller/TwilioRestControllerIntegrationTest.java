@@ -104,7 +104,7 @@ public class TwilioRestControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_XML))
         .andExpect(content().xml(
-            "<Response><Say voice=\"alice\">Connecting your call.</Say><Dial timeout=\"30\" action=\"http://localhost:8080/api/recording?CallSid=12345\" method=\"POST\" callerId=\"" + accountPhoneNumber + "\" record=\"record-from-answer\"><Number>" + dialNumber + "</Number></Dial></Response>"
+            "<Response><Say voice=\"alice\">Connecting your call.</Say><Dial timeout=\"30\" callerId=\"9195924466\" record=\"record-from-answer\" recordingStatusCallback=\"http://localhost:8080/api/recording?CallSid=12345\" recordingStatusCallbackMethod=\"POST\"><Number>9196658899</Number></Dial></Response>"
         ));
   }
 
@@ -158,10 +158,8 @@ public class TwilioRestControllerIntegrationTest {
     mvc.perform(post("/api/recording")
         .header("Authorization", getAuthHeader())
         .param("CallSid", "12345")
-        .param("DialCallSid", "2345")
-        .param("DialCallDuration", "45")
         .param("RecordingUrl", "http://localhost")
-        .param("DialCallStatus", "complete"))
+        .param("RecordingStatus", "complete"))
         .andExpect(status().isOk());
   }
 
