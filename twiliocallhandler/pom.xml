@@ -25,7 +25,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <beanstalk.versionLabel>${project.artifactId}:${maven.build.timestamp}</beanstalk.versionLabel>
-    <beanstalk.versionsToKeep>5</beanstalk.versionsToKeep>
+    <beanstalk.versionsToKeep>3</beanstalk.versionsToKeep>
     <beanstalk.dryRun>false</beanstalk.dryRun>
 
   </properties>
