@@ -15,7 +15,7 @@ public class EventTest {
 
   @Test
   public void testSerialization() throws Exception {
-    Event event = Event.builder().eventType(EventType.CallRecordingCompleted).attribute("CallSid", "113").attribute("AccountId", "2223").build();
+    Event event = Event.builder().eventType(EventType.CallRecordingCompleted).callSid("113").attribute("AccountId", "2223").build();
     String json = om.writeValueAsString(event);
     log.info("Serialized as {}", json);
     Event deserialized = om.readValue(json, new TypeReference<Event>(){});

@@ -44,6 +44,8 @@
     <module>s3service</module>
     <module>eventhandler</module>
     <module>commandhandler</module>
+    <module>actor</module>
+    <module>domain</module>
   </modules>
 
 </project>

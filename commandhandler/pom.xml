@@ -26,6 +26,11 @@
     </dependency>
     <dependency>
       <groupId>com.mishima</groupId>
+      <artifactId>actor</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.mishima</groupId>
       <artifactId>callservice-client</artifactId>
       <version>${project.version}</version>
     </dependency>

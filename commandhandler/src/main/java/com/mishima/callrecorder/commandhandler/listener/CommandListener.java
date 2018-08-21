@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mishima.callrecorder.commandhandler.handler.CommandHandler;
 import com.mishima.callrecorder.publisher.entity.Command;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +23,6 @@ public class CommandListener {
   private final TypeReference<Map<String,Object>> mapTypeReference = new TypeReference<Map<String, Object>>() {};
   private final TypeReference<Command> eventTypeReference = new TypeReference<Command>() {};
 
-  private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
   public void onMessage(Message message) {
     TextMessage textMessage = (TextMessage)message;
     try {
@@ -35,7 +31,7 @@ public class CommandListener {
       Map<String,Object> map = om.readValue(text, mapTypeReference);
       String body = (String)map.get("Message");
       Command command = om.readValue(body, eventTypeReference);
-      executor.submit(() -> commandHandler.handle(command));
+      commandHandler.handle(command);
     } catch(Exception ex) {
       log.error("Error occurred processing message -> {}", ex);
     }

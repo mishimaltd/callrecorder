@@ -1,5 +1,6 @@
 package com.mishima.callrecorder.publisher.entity;
 
+import com.mishima.callrecorder.domain.entity.BaseMessage;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
@@ -11,31 +12,29 @@ import lombok.ToString;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class Event {
+public class Event implements BaseMessage {
 
   public enum EventType {
     CallInitiated,
     CallRecordingCompleted,
     CallEnded,
     CallRecordingUploaded,
-    CallTranscriptionSubmitted,
-    CallTranscriptionCompleted,
-    BillingSubmitted,
-    BillingCompleted,
-    InvoiceCompleted,
     Error
   }
 
   private EventType eventType;
+  private String callSid;
   private Map<String,Object> attributes;
 
   private Event() {
   }
 
-  private Event(EventType eventType, Map<String,Object> attributes) {
+  private Event(EventType eventType, String callSid, Map<String,Object> attributes) {
     assert(eventType != null);
+    assert(callSid != null);
     assert(attributes != null);
     this.eventType = eventType;
+    this.callSid = callSid;
     this.attributes = attributes;
   }
 
@@ -47,6 +46,7 @@ public class Event {
   public static final class Builder {
 
     private EventType eventType;
+    private String callSid;
     private Map<String,Object> attributes = new HashMap<>();
 
     private Builder() {
@@ -54,6 +54,11 @@ public class Event {
 
     public Builder eventType(EventType eventType) {
       this.eventType = eventType;
+      return this;
+    }
+
+    public Builder callSid(String callSid) {
+      this.callSid = callSid;
       return this;
     }
 
@@ -71,7 +76,7 @@ public class Event {
     }
 
     public Event build() {
-      return new Event(eventType, attributes);
+      return new Event(eventType, callSid, attributes);
     }
   }
 }

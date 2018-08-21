@@ -68,8 +68,8 @@ public class TwilioRestController {
       log.info("Publishing call initiated publisher.");
       eventPublisher.publish(eventTopicArn, Event.builder()
           .eventType(EventType.CallInitiated)
+          .callSid(callSid)
           .attribute("AccountId", accountId.get())
-          .attribute("CallSid", callSid)
           .attribute("From", from)
           .build());
       // Generate response
@@ -88,7 +88,7 @@ public class TwilioRestController {
     log.info("Publishing call completed publisher.");
     eventPublisher.publish(eventTopicArn, Event.builder()
       .eventType(EventType.CallEnded)
-      .attribute("CallSid", callSid)
+      .callSid(callSid)
       .attribute("Duration", duration)
       .build());
     return new ResponseEntity<>(HttpStatus.OK);
@@ -169,7 +169,7 @@ public class TwilioRestController {
       log.info("Publishing recording completed publisher for call sid {}", callSid);
       eventPublisher.publish(eventTopicArn, Event.builder()
           .eventType(EventType.CallRecordingCompleted)
-          .attribute("CallSid", callSid)
+          .callSid(callSid)
           .attribute("RecordingUrl", recordingUrl)
           .build());
     }

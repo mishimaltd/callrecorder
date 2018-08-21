@@ -1,5 +1,6 @@
 package com.mishima.callrecorder.publisher.entity;
 
+import com.mishima.callrecorder.domain.entity.BaseMessage;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
@@ -11,7 +12,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class Command {
+public class Command implements BaseMessage {
 
   public enum CommandType {
     UploadRecording,
@@ -19,16 +20,25 @@ public class Command {
   }
 
   private CommandType commandType;
+
+  private String callSid;
+
   private Map<String,Object> attributes;
 
   private Command() {
   }
 
-  private Command(CommandType commandType, Map<String,Object> attributes) {
+  private Command(CommandType commandType, String callSid, Map<String,Object> attributes) {
     assert(commandType != null);
+    assert(callSid != null);
     assert(attributes != null);
     this.commandType = commandType;
+    this.callSid = callSid;
     this.attributes = attributes;
+  }
+
+  public String getCallSid() {
+    return callSid;
   }
 
   public static Builder builder() {
@@ -39,6 +49,7 @@ public class Command {
   public static final class Builder {
 
     private CommandType commandType;
+    private String callSid;
     private Map<String,Object> attributes = new HashMap<>();
 
     private Builder() {
@@ -46,6 +57,11 @@ public class Command {
 
     public Builder commandType(CommandType commandType) {
       this.commandType = commandType;
+      return this;
+    }
+
+    public Builder callSid(String callSid) {
+      this.callSid = callSid;
       return this;
     }
 
@@ -63,7 +79,7 @@ public class Command {
     }
 
     public Command build() {
-      return new Command(commandType, attributes);
+      return new Command(commandType, callSid, attributes);
     }
   }
 }
