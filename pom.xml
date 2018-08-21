@@ -40,7 +40,10 @@
     <module>twiliocallhandler</module>
     <module>accountservice</module>
     <module>callservice</module>
-    <module>event</module>
+    <module>publisher</module>
+    <module>s3service</module>
+    <module>eventhandler</module>
+    <module>commandhandler</module>
   </modules>
 
 </project>

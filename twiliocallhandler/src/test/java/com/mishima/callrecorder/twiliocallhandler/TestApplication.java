@@ -1,6 +1,6 @@
 package com.mishima.callrecorder.twiliocallhandler;
 
-import com.mishima.callhandler.accountservice.client.AccountServiceClient;
+import com.mishima.callrecorder.accountservice.service.client.AccountServiceClient;
 import org.mockito.Mockito;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

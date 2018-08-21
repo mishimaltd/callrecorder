@@ -25,7 +25,7 @@
   <dependencies>
     <dependency>
       <groupId>com.mishima</groupId>
-      <artifactId>event</artifactId>
+      <artifactId>publisher</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

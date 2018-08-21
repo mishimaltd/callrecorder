@@ -1,7 +1,7 @@
 package com.mishima.callrecorder.twiliocallhandler.config;
 
-import com.mishima.callhandler.accountservice.client.AccountServiceClient;
-import com.mishima.callhandler.accountservice.client.AccountServiceClientImpl;
+import com.mishima.callrecorder.accountservice.service.client.AccountServiceClient;
+import com.mishima.callrecorder.accountservice.service.client.AccountServiceClientImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

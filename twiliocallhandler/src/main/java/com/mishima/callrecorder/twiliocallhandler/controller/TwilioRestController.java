@@ -1,9 +1,9 @@
 package com.mishima.callrecorder.twiliocallhandler.controller;
 
-import com.mishima.callhandler.accountservice.client.AccountServiceClient;
-import com.mishima.callrecorder.event.entity.Event;
-import com.mishima.callrecorder.event.entity.Event.EventType;
-import com.mishima.callrecorder.event.publisher.EventPublisher;
+import com.mishima.callrecorder.accountservice.service.client.AccountServiceClient;
+import com.mishima.callrecorder.publisher.entity.Event;
+import com.mishima.callrecorder.publisher.entity.Event.EventType;
+import com.mishima.callrecorder.publisher.Publisher;
 import com.mishima.callrecorder.twiliocallhandler.decorator.TwiMLDecorator;
 import com.mishima.callrecorder.twiliocallhandler.validator.DialledNumberValidator;
 import com.twilio.twiml.Dial;
@@ -39,13 +39,16 @@ public class TwilioRestController {
   private AccountServiceClient accountServiceClient;
 
   @Autowired
-  private EventPublisher eventPublisher;
+  private Publisher eventPublisher;
 
   @Autowired
   private DialledNumberValidator dialledNumberValidator;
 
   @Value("${twilio.baseUrl}")
   private String baseUrl;
+
+  @Value("${event.topic.arn}")
+  private String eventTopicArn;
 
   private TwiMLDecorator decorator = new TwiMLDecorator();
 
@@ -61,9 +64,9 @@ public class TwilioRestController {
       log.info("No account found for incoming call from {}", from);
       response = new VoiceResponse.Builder().say(noAccount()).build();
     } else {
-      // Publish call initiated event
-      log.info("Publishing call initiated event.");
-      eventPublisher.publish(Event.builder()
+      // Publish call initiated publisher
+      log.info("Publishing call initiated publisher.");
+      eventPublisher.publish(eventTopicArn, Event.builder()
           .eventType(EventType.CallInitiated)
           .attribute("AccountId", accountId.get())
           .attribute("CallSid", callSid)
@@ -81,9 +84,9 @@ public class TwilioRestController {
   @PostMapping(value = "/completed", produces = MediaType.APPLICATION_XML_VALUE)
   public ResponseEntity<byte[]> completed(@RequestParam("CallSid") String callSid, @RequestParam("Duration") int duration) {
     log.info("Received call completed for call sid {}, duration {}", callSid, duration);
-    // Publish call ended event
-    log.info("Publishing call completed event.");
-    eventPublisher.publish(Event.builder()
+    // Publish call ended publisher
+    log.info("Publishing call completed publisher.");
+    eventPublisher.publish(eventTopicArn, Event.builder()
       .eventType(EventType.CallEnded)
       .attribute("CallSid", callSid)
       .attribute("Duration", duration)
@@ -163,8 +166,8 @@ public class TwilioRestController {
                        @RequestParam("RecordingStatus") String recordingStatus) {
     log.info("Received call sid {}, status {}, recording url {}", callSid, recordingStatus, recordingUrl);
     if("completed".equals(recordingStatus)) {
-      log.info("Publishing recording completed event for call sid {}", callSid);
-      eventPublisher.publish(Event.builder()
+      log.info("Publishing recording completed publisher for call sid {}", callSid);
+      eventPublisher.publish(eventTopicArn, Event.builder()
           .eventType(EventType.CallRecordingCompleted)
           .attribute("CallSid", callSid)
           .attribute("RecordingUrl", recordingUrl)

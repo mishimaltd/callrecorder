@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.amazonaws.util.Base64;
-import com.mishima.callhandler.accountservice.client.AccountServiceClient;
+import com.mishima.callrecorder.accountservice.service.client.AccountServiceClient;
 import com.mishima.callrecorder.twiliocallhandler.TestApplication;
 import java.util.Optional;
 import org.junit.Before;

@@ -4,7 +4,7 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
-import com.mishima.callrecorder.event.publisher.EventPublisher;
+import com.mishima.callrecorder.publisher.Publisher;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,10 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SNSConfiguration {
 
-  @Value("${event.topic.arn}")
-  private String topic;
-
-  @Value("${event.publishing.enabled}")
+  @Value("${publishing.enabled}")
   private boolean enabled;
 
   private AmazonSNS snsClient = AmazonSNSClientBuilder.standard()
@@ -24,8 +21,8 @@ public class SNSConfiguration {
         .build();
 
   @Bean
-  public EventPublisher eventPublisher() {
-    return new EventPublisher(snsClient, topic, enabled);
+  public Publisher publisher() {
+    return new Publisher(snsClient, enabled);
   }
 
 }
