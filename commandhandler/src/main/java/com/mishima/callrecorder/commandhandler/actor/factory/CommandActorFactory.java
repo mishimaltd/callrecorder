@@ -9,7 +9,9 @@ import com.mishima.callrecorder.publisher.Publisher;
 import com.mishima.callrecorder.s3service.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CommandActorFactory implements ActorFactory {
 
   @Autowired

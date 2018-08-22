@@ -124,7 +124,9 @@
     <profile>
       <id>deploy-to-amazon</id>
       <activation>
-        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>deploy</name>
+        </property>
       </activation>
       <build>
         <plugins>
