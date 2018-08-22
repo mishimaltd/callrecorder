@@ -6,6 +6,7 @@ import com.mishima.callrecorder.commandhandler.handler.CommandHandler;
 import com.mishima.callrecorder.publisher.entity.Command;
 import java.util.Map;
 import javax.jms.Message;
+import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class CommandListener {
+public class CommandListener implements MessageListener {
 
   @Autowired
   private CommandHandler commandHandler;

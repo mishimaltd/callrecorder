@@ -6,6 +6,7 @@ import com.mishima.callrecorder.eventhandler.handler.EventHandler;
 import com.mishima.callrecorder.publisher.entity.Event;
 import java.util.Map;
 import javax.jms.Message;
+import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class EventListener {
+public class EventListener implements MessageListener {
 
   @Autowired
   private EventHandler eventHandler;
