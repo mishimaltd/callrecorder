@@ -2,6 +2,7 @@ package com.mishima.callrecorder.callservice.controller;
 
 import com.mishima.callrecorder.callservice.entity.Call;
 import com.mishima.callrecorder.callservice.persistence.CallRepository;
+import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,16 @@ public class CallRestController {
 
   @Autowired
   private CallRepository callRepository;
+
+  @ResponseBody
+  @GetMapping(value = "/getCallsByAccountId", produces = MediaType.APPLICATION_JSON_VALUE)
+  public List<Call> getCallsByAccountId(@RequestParam("accountId") String accountId) {
+    log.info("Retrieving calls by accountId {}", accountId);
+    List<Call> calls = callRepository.findByAccountIdOrderByCreatedDesc(accountId);
+    log.info("Found {} calls for accountId {}", calls.size(), accountId);
+    return calls;
+  }
+
 
   @ResponseBody
   @GetMapping(value = "/getCallBySid", produces = MediaType.APPLICATION_JSON_VALUE)

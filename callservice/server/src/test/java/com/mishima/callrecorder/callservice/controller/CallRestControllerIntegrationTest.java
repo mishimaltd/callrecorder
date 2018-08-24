@@ -3,6 +3,7 @@ package com.mishima.callrecorder.callservice.controller;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mishima.callrecorder.callservice.Application;
 import com.mishima.callrecorder.callservice.entity.Call;
 import com.mishima.callrecorder.callservice.persistence.CallRepository;
+import java.util.List;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -35,6 +37,7 @@ public class CallRestControllerIntegrationTest {
   private CallRepository callRepository;
 
   private String callSid = "987654321";
+  private String accountId = "334455";
 
   private Call call;
 
@@ -42,7 +45,7 @@ public class CallRestControllerIntegrationTest {
   public void setup() {
     Optional<Call> result = callRepository.findBySid(callSid);
     if(!result.isPresent()) {
-      call = Call.builder().sid(callSid).build();
+      call = Call.builder().sid(callSid).accountId(accountId).created(System.currentTimeMillis()).build();
       callRepository.save(call);
     }
   }
@@ -76,5 +79,17 @@ public class CallRestControllerIntegrationTest {
         .andReturn().getResponse().getContentAsString();
     Call loaded = new ObjectMapper().readValue(json, new TypeReference<Call>(){});
     assertEquals("updated", loaded.getStatus());
+  }
+
+  @Test
+  public void givenExistingAccountIdThenReturnCalls() throws Exception {
+    String json = mvc.perform(get("/api/getCallsByAccountId")
+        .param("accountId", call.getAccountId()))
+        .andExpect(status().isOk())
+        .andDo(print())
+        .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andReturn().getResponse().getContentAsString();
+    List<Call> loaded = new ObjectMapper().readValue(json, new TypeReference<List<Call>>(){});
+    assertEquals(call, loaded.get(0));
   }
 }
