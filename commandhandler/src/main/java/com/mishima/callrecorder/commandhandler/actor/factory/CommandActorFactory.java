@@ -8,7 +8,8 @@ import com.mishima.callrecorder.callservice.client.CallServiceClient;
 import com.mishima.callrecorder.commandhandler.actor.CommandActor;
 import com.mishima.callrecorder.publisher.Publisher;
 import com.mishima.callrecorder.s3service.service.S3Service;
-import com.mishima.callrecorder.twiliosmsservice.TwilioSMSService;
+import com.mishima.callrecorder.twilioservice.TwilioRecordingDeleterService;
+import com.mishima.callrecorder.twilioservice.TwilioSMSService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -31,12 +32,15 @@ public class CommandActorFactory implements ActorFactory {
   @Autowired
   private TwilioSMSService twilioSMSService;
 
+  @Autowired
+  private TwilioRecordingDeleterService twilioRecordingDeleterService;
+
   @Value("${callservice.uri}")
   private String callServiceUri;
 
   @Override
   public ActorRef create(ActorContext context) {
-    return context.actorOf(Props.create(CommandActor.class, publisher, callServiceClient, eventTopicArn, s3Service, twilioSMSService, callServiceUri));
+    return context.actorOf(Props.create(CommandActor.class, publisher, callServiceClient, eventTopicArn, s3Service, twilioSMSService, twilioRecordingDeleterService, callServiceUri));
   }
 
 }

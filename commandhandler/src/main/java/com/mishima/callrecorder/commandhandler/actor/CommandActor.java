@@ -8,7 +8,8 @@ import com.mishima.callrecorder.publisher.entity.Command;
 import com.mishima.callrecorder.publisher.entity.Event;
 import com.mishima.callrecorder.publisher.entity.Event.EventType;
 import com.mishima.callrecorder.s3service.service.S3Service;
-import com.mishima.callrecorder.twiliosmsservice.TwilioSMSService;
+import com.mishima.callrecorder.twilioservice.TwilioRecordingDeleterService;
+import com.mishima.callrecorder.twilioservice.TwilioSMSService;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Optional;
@@ -26,15 +27,17 @@ public class CommandActor extends AbstractActor {
   private final String eventTopicArn;
   private final S3Service s3Service;
   private final TwilioSMSService twilioSMSService;
+  private final TwilioRecordingDeleterService twilioRecordingDeleterService;
   private final String callServiceUri;
 
   public CommandActor(Publisher eventPublisher, CallServiceClient callServiceClient, String eventTopicArn,
-      S3Service s3Service, TwilioSMSService twilioSMSService, String callServiceUri) {
+      S3Service s3Service, TwilioSMSService twilioSMSService, TwilioRecordingDeleterService twilioRecordingDeleterService, String callServiceUri) {
     this.eventPublisher = eventPublisher;
     this.callServiceClient = callServiceClient;
     this.eventTopicArn = eventTopicArn;
     this.s3Service = s3Service;
     this.twilioSMSService = twilioSMSService;
+    this.twilioRecordingDeleterService = twilioRecordingDeleterService;
     this.callServiceUri = callServiceUri;
   }
 
@@ -63,6 +66,7 @@ public class CommandActor extends AbstractActor {
   private void uploadRecording(Command command) {
     String callSid = command.getCallSid();
     String recordingUrl = (String)command.getAttributes().get("RecordingUrl");
+    String recordingSid = (String)command.getAttributes().get("RecordingSid");
     boolean uploaded = false;
     String message = null;
     int retries = 0;
@@ -76,10 +80,12 @@ public class CommandActor extends AbstractActor {
         log.info("Uploaded recording from url {} to fileKey {}", recordingUrl, fileKey);
 
         // Delete from Twilio
+        twilioRecordingDeleterService.deleteRecording(recordingSid);
+
         new RestTemplate().delete(recordingUrl + ".json");
         log.info("Deleted recording url {} from Twilio", recordingUrl);
 
-        // Publish recording uploaded to s3
+        // Publish recording uploaded to s3 event
         eventPublisher.publish(eventTopicArn, Event.builder()
             .eventType(EventType.CallRecordingUploaded)
             .callSid(callSid)

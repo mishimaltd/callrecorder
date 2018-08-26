@@ -1,12 +1,13 @@
 package com.mishima.callrecorder.commandhandler.config;
 
-import com.mishima.callrecorder.twiliosmsservice.TwilioSMSService;
+import com.mishima.callrecorder.twilioservice.TwilioRecordingDeleterService;
+import com.mishima.callrecorder.twilioservice.TwilioSMSService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class TwilioSMSServiceConfig {
+public class TwilioServiceConfig {
 
   @Value("${twilio.account.sid}")
   private String twilioAccountSid;
@@ -21,5 +22,11 @@ public class TwilioSMSServiceConfig {
   public TwilioSMSService twilioSMSService() {
     return new TwilioSMSService(twilioAccountSid, twilioAuthToken, twilioSmsFrom);
   }
+
+  @Bean
+  public TwilioRecordingDeleterService twilioRecordingDeleterService() {
+    return new TwilioRecordingDeleterService(twilioAccountSid, twilioAuthToken);
+  }
+
 
 }

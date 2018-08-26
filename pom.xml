@@ -48,7 +48,7 @@
     <module>commandhandler</module>
     <module>actor</module>
     <module>domain</module>
-    <module>twiliosmsservice</module>
+    <module>twilioservice</module>
   </modules>
 
 </project>

@@ -1,4 +1,4 @@
-package com.mishima.callrecorder.twiliosmsservice;
+package com.mishima.callrecorder.twilioservice;
 
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;

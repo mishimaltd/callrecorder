@@ -86,6 +86,7 @@ public class EventActor extends AbstractActor {
 
   private void recordingCompleted(Event event) {
     String callSid = event.getCallSid();
+    String recordingSid = (String)event.getAttributes().get("RecordingSid");
     String recordingUrl = (String)event.getAttributes().get("RecordingUrl");
     Optional<Call> result = callServiceClient.findByCallSid(callSid);
     if(result.isPresent()) {
@@ -99,6 +100,7 @@ public class EventActor extends AbstractActor {
           Command.builder()
               .commandType(CommandType.UploadRecording)
               .callSid(callSid)
+              .attribute("RecordingSid", recordingSid)
               .attribute("RecordingUrl", recordingUrl)
               .build());
     } else {

@@ -9,7 +9,7 @@
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>twiliosmsservice</artifactId>
+  <artifactId>twilioservice</artifactId>
   <name>Callrecorder :: Twilio SMS Service</name>
 
   <dependencies>

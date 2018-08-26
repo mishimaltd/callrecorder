@@ -181,14 +181,16 @@ public class TwilioRestController {
   @PostMapping(value = "/recording", produces = MediaType.APPLICATION_XML_VALUE)
   public ResponseEntity<byte[]> recording(
                        @RequestParam("CallSid") String callSid,
+                       @RequestParam("RecordingSid") String recordingSid,
                        @RequestParam("RecordingUrl") String recordingUrl,
                        @RequestParam("RecordingStatus") String recordingStatus) {
-    log.info("Received call sid {}, status {}, recording url {}", callSid, recordingStatus, recordingUrl);
+    log.info("Received call sid {}, status {}, recording sid {}", callSid, recordingStatus, recordingSid);
     if("completed".equals(recordingStatus)) {
       log.info("Publishing recording completed publisher for call sid {}", callSid);
       eventPublisher.publish(eventTopicArn, Event.builder()
           .eventType(EventType.CallRecordingCompleted)
           .callSid(callSid)
+          .attribute("RecordingSid", recordingSid)
           .attribute("RecordingUrl", recordingUrl)
           .build());
     } else {

@@ -44,7 +44,7 @@
     </dependency>
     <dependency>
       <groupId>com.mishima</groupId>
-      <artifactId>twiliosmsservice</artifactId>
+      <artifactId>twilioservice</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
