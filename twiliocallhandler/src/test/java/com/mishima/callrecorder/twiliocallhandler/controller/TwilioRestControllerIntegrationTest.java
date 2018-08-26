@@ -31,7 +31,7 @@ public class TwilioRestControllerIntegrationTest {
   @Autowired
   private MockMvc mvc;
 
-  @Value("${twilio.baseUrl}")
+  @Value("${twilio.baseUri}")
   private String baseUrl;
 
   @Value("${twilio.username}")
@@ -60,7 +60,7 @@ public class TwilioRestControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_XML))
         .andExpect(content().xml(
-            "<Response><Gather timeout=\"20\" action=\"" + baseUrl + "/confirm?AccountId=" + accountId + "\" method=\"POST\"><Say voice=\"alice\">Please enter the number you wish to call on your keypad followed by the pound or hash key.</Say></Gather><Say voice=\"alice\">Sorry I didn't get any input, Goodbye!</Say></Response>"
+            "<Response><Gather timeout=\"20\" action=\"" + baseUrl + "/confirm\" method=\"POST\"><Say voice=\"alice\">Please enter the number you wish to call on your keypad followed by the pound or hash key.</Say></Gather><Say voice=\"alice\">Sorry I didn't get any input, Goodbye!</Say></Response>"
         ));
   }
 
@@ -74,7 +74,7 @@ public class TwilioRestControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_XML))
         .andExpect(content().xml(
-            "<Response><Gather timeout=\"20\" numDigits=\"1\" action=\"http://localhost:8080/api/confirmed?Number=556677\" method=\"POST\"><Say voice=\"alice\">I heard 5,5,6,6,7,7. Is that correct? Press 1 to confirm or any other key to try again.</Say></Gather><Say voice=\"alice\">Sorry I didn't get any input, Goodbye!</Say></Response>"
+            "<Response><Gather timeout=\"20\" numDigits=\"1\" action=\"http://localhost:8080/api/confirmed\" method=\"POST\"><Say voice=\"alice\">I heard 5,5,6,6,7,7. Is that correct? Press 1 to confirm or any other key to try again.</Say></Gather><Say voice=\"alice\">Sorry I didn't get any input, Goodbye!</Say></Response>"
         ));
   }
 
@@ -99,8 +99,9 @@ public class TwilioRestControllerIntegrationTest {
         .header("Authorization", getAuthHeader())
         .param("CallSid", "12345")
         .param("From", accountPhoneNumber)
-        .param("Number", dialNumber)
-        .param("Digits", "1"))
+        .param("Digits", "1")
+        .sessionAttr("Number", dialNumber)
+        .sessionAttr("Trial", false))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_XML))
         .andExpect(content().xml(

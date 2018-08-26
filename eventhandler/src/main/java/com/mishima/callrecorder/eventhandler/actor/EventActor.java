@@ -45,6 +45,10 @@ public class EventActor extends AbstractActor {
       case CallRecordingUploaded:
         recordingUploaded(event);
         break;
+      case SMSNotificationSent:
+        smsNotificationSent(event);
+      case Error:
+        error(event);
       default:
         log.info("Unknown publisher type {}", event.getEventType());
     }
@@ -54,9 +58,10 @@ public class EventActor extends AbstractActor {
     long now = System.currentTimeMillis();
     String callSid = event.getCallSid();
     Call call = Call.builder()
+        .sid(callSid)
         .accountId((String)event.getAttributes().get("AccountId"))
         .status("Created")
-        .sid(callSid)
+        .trial((Boolean)event.getAttributes().get("Trial"))
         .from((String)event.getAttributes().get("From"))
         .created(now)
         .lastUpdated(now)
@@ -70,7 +75,6 @@ public class EventActor extends AbstractActor {
     Optional<Call> result = callServiceClient.findByCallSid(callSid);
     if(result.isPresent()) {
       Call call = result.get();
-      call.setStatus("Completed");
       call.setDuration(Integer.valueOf(event.getAttributes().get("Duration").toString()));
       call.setLastUpdated(System.currentTimeMillis());
       callServiceClient.saveCall(call);
@@ -113,14 +117,51 @@ public class EventActor extends AbstractActor {
       call.setLastUpdated(System.currentTimeMillis());
       callServiceClient.saveCall(call);
       log.info("Marked call sid {} as recording uploaded", callSid);
+      CommandType commandType;
+      if(call.isTrial()) {
+        log.info("Call sid {} is a trial, will send SendRecordingSMS command");
+        commandType = CommandType.SendRecordingSMS;
+      } else {
+        log.info("Call sid {} is not a trial, will send Billing command");
+        commandType = CommandType.Billing;
+      }
       publisher.publish(commandTopicArn,
           Command.builder()
-              .commandType(CommandType.Billing)
+              .commandType(commandType)
               .callSid(callSid)
               .build());
     } else {
       log.error("Error occurred marking recording complete, could not find call by sid {}", callSid);
     }
   }
+
+  private void smsNotificationSent(Event event) {
+    String callSid = event.getCallSid();
+    Optional<Call> result = callServiceClient.findByCallSid(callSid);
+    if(result.isPresent()) {
+      Call call = result.get();
+      call.setStatus("SMSNotificationSent");
+      call.setLastUpdated(System.currentTimeMillis());
+      callServiceClient.saveCall(call);
+      log.info("Marked call sid {} as sms notification sent", callSid);
+    } else {
+      log.error("Error occurred marking recording complete, could not find call by sid {}", callSid);
+    }
+  }
+
+  private void error(Event event) {
+    String callSid = event.getCallSid();
+    Optional<Call> result = callServiceClient.findByCallSid(callSid);
+    if(result.isPresent()) {
+      Call call = result.get();
+      call.setStatus("Error");
+      call.setLastUpdated(System.currentTimeMillis());
+      callServiceClient.saveCall(call);
+      log.info("Marked call sid {} as sms notification sent", callSid);
+    } else {
+      log.error("Error occurred marking recording complete, could not find call by sid {}", callSid);
+    }
+  }
+
 
 }

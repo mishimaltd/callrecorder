@@ -1,21 +1,21 @@
 package com.mishima.callrecorder.twiliocallhandler.controller;
 
 import com.mishima.callrecorder.accountservice.service.client.AccountServiceClient;
+import com.mishima.callrecorder.publisher.Publisher;
 import com.mishima.callrecorder.publisher.entity.Event;
 import com.mishima.callrecorder.publisher.entity.Event.EventType;
-import com.mishima.callrecorder.publisher.Publisher;
-import com.mishima.callrecorder.twiliocallhandler.decorator.TwiMLDecorator;
 import com.mishima.callrecorder.twiliocallhandler.validator.DialledNumberValidator;
-import com.twilio.twiml.Dial;
-import com.twilio.twiml.Gather;
-import com.twilio.twiml.Method;
-import com.twilio.twiml.Number;
-import com.twilio.twiml.Say;
-import com.twilio.twiml.Say.Voice;
+import com.twilio.http.HttpMethod;
 import com.twilio.twiml.TwiMLException;
 import com.twilio.twiml.VoiceResponse;
+import com.twilio.twiml.voice.Dial;
+import com.twilio.twiml.voice.Gather;
+import com.twilio.twiml.voice.Number;
+import com.twilio.twiml.voice.Say;
+import com.twilio.twiml.voice.Say.Voice;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,18 +44,18 @@ public class TwilioRestController {
   @Autowired
   private DialledNumberValidator dialledNumberValidator;
 
-  @Value("${twilio.baseUrl}")
-  private String baseUrl;
+  @Value("${twilio.baseUri}")
+  private String baseUri;
 
   @Value("${event.topic.arn}")
   private String eventTopicArn;
 
-  private TwiMLDecorator decorator = new TwiMLDecorator();
-
   @ResponseBody
   @PostMapping(value = "/receive", produces = MediaType.APPLICATION_XML_VALUE)
   public ResponseEntity<byte[]> receive(@RequestParam("CallSid") String callSid,
-      @RequestParam("From") String from) throws TwiMLException {
+                                        @RequestParam("From") String from,
+                                        @RequestParam(value = "Trial", required = false, defaultValue = "false") boolean trial,
+                                        HttpServletRequest request) throws TwiMLException {
     log.info("Received call sid {} from number {}", callSid, from);
     VoiceResponse response;
     // Check there is an account associated with the inbound number
@@ -64,6 +64,11 @@ public class TwilioRestController {
       log.info("No account found for incoming call from {}", from);
       response = new VoiceResponse.Builder().say(noAccount()).build();
     } else {
+      // Store details of this call in the session
+      request.getSession().setAttribute("CallSid", callSid);
+      request.getSession().setAttribute("AccountId", accountId);
+      request.getSession().setAttribute("Trial", trial);
+
       // Publish call initiated publisher
       log.info("Publishing call initiated publisher.");
       eventPublisher.publish(eventTopicArn, Event.builder()
@@ -71,9 +76,10 @@ public class TwilioRestController {
           .callSid(callSid)
           .attribute("AccountId", accountId.get())
           .attribute("From", from)
+          .attribute("Trial", trial)
           .build());
       // Generate response
-      Gather gather = new Gather.Builder().action(baseUrl + "/confirm?AccountId=" + accountId.get()).method(Method.POST)
+      Gather gather = new Gather.Builder().action(baseUri + "/confirm").method(HttpMethod.POST)
           .timeout(20).say(instructions()).build();
       response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
     }
@@ -82,7 +88,8 @@ public class TwilioRestController {
 
   @ResponseBody
   @PostMapping(value = "/completed", produces = MediaType.APPLICATION_XML_VALUE)
-  public ResponseEntity<byte[]> completed(@RequestParam("CallSid") String callSid, @RequestParam("Duration") int duration) {
+  public ResponseEntity<byte[]> completed(@RequestParam("CallSid") String callSid,
+                                          @RequestParam("Duration") int duration) {
     log.info("Received call completed for call sid {}, duration {}", callSid, duration);
     // Publish call ended publisher
     log.info("Publishing call completed publisher.");
@@ -97,20 +104,24 @@ public class TwilioRestController {
   @ResponseBody
   @PostMapping(value = "/confirm", produces = MediaType.APPLICATION_XML_VALUE)
   public ResponseEntity<byte[]> confirm(@RequestParam("CallSid") String callSid,
-      @RequestParam("From") String from,
-      @RequestParam(value = "Digits", defaultValue = "") String digits) throws TwiMLException {
+                                        @RequestParam("From") String from,
+                                        @RequestParam(value = "Digits", defaultValue = "") String digits,
+                                        HttpServletRequest request) throws TwiMLException {
     log.info("Received call sid {} from number {} with captured digits {}", callSid, from, digits);
     VoiceResponse response;
     if (!StringUtils.hasText(digits)) {
       log.info("Did not capture any digits from the call");
-      Gather gather = new Gather.Builder().action(baseUrl + "/confirm").method(Method.POST)
+      Gather gather = new Gather.Builder().action(baseUri + "/confirm").method(HttpMethod.POST)
           .timeout(20).say(noDigits()).build();
       response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
       return buildResponseEntity(response.toXml());
     } else {
+      // Store captured number in session
+      request.getSession().setAttribute("Number", digits);
+
       log.info("Confirming digits with caller");
-      Gather gather = new Gather.Builder().action(baseUrl + "/confirmed?Number=" + digits)
-          .method(Method.POST).numDigits(1).timeout(20).say(confirm(digits)).build();
+      Gather gather = new Gather.Builder().action(baseUri + "/confirmed")
+          .method(HttpMethod.POST).numDigits(1).timeout(20).say(confirm(digits)).build();
       response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
     }
     return buildResponseEntity(response.toXml());
@@ -119,38 +130,46 @@ public class TwilioRestController {
   @ResponseBody
   @PostMapping(value = "/confirmed", produces = MediaType.APPLICATION_XML_VALUE)
   public ResponseEntity<byte[]> confirmed(@RequestParam("CallSid") String callSid,
-      @RequestParam("From") String from,
-      @RequestParam(value = "Digits", defaultValue = "") String digits,
-      @RequestParam(value = "Number", defaultValue="") String number) throws TwiMLException {
+                                          @RequestParam("From") String from,
+                                          @RequestParam(value = "Digits", defaultValue = "") String digits,
+                                          HttpServletRequest request) throws TwiMLException {
     log.info("Received call sid {} from number {} with captured digits {}", callSid, from, digits);
     VoiceResponse response;
     if (!StringUtils.hasText(digits)) {
       log.info("Did not capture any digits from the call");
-      Gather gather = new Gather.Builder().action(baseUrl + "/confirm").method(Method.POST)
+      Gather gather = new Gather.Builder().action(baseUri + "/confirm").method(HttpMethod.POST)
           .timeout(20).say(noDigits()).build();
       response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
     } else {
       if ("1".equals(digits)) {
-        log.info("Caller confirmed number, validating...");
+        String number = (String)request.getSession().getAttribute("Number");
+        log.info("Caller confirmed number {}, validating...", number);
         if(!dialledNumberValidator.checkNumberIsValid(number)) {
           log.info("Requested number to dial invalid, ask for digits again");
-          Gather gather = new Gather.Builder().action(baseUrl + "/confirm").method(Method.POST)
+          Gather gather = new Gather.Builder().action(baseUri + "/confirm").method(HttpMethod.POST)
               .timeout(20).say(invalidNumber()).build();
           response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
         } else {
-          Say say = say("Connecting your call.");
-          Dial dial = new Dial.Builder().callerId(from).record(Dial.Record.RECORD_FROM_ANSWER).timeout(30)
-              .number(new Number.Builder(number).build()).build();
-          response = new VoiceResponse.Builder().say(say).dial(dial).build();
-          // Add recording status callback url
-          String xml = response.toXml();
-          String recordingStatusCallbackUrl = baseUrl + "/recording";
-          String decorated = decorator.decorate(xml, recordingStatusCallbackUrl);
-          return buildResponseEntity(decorated);
+          // Get trial option from session
+          boolean trial = (Boolean)request.getSession().getAttribute("Trial");
+          if( trial) {
+            Say say = say("Connecting your trial call, this call will automatically disconnect after 2 minutes.");
+            Dial dial = new Dial.Builder().callerId(from).record(Dial.Record.RECORD_FROM_ANSWER).timeout(30).timeLimit(120)
+                .recordingStatusCallback(baseUri + "/recording").recordingStatusCallbackMethod(HttpMethod.POST)
+                .number(new Number.Builder(number).build()).build();
+            response = new VoiceResponse.Builder().say(say).dial(dial).build();
+          } else {
+            Say say = say("Connecting your call.");
+            Dial dial = new Dial.Builder().callerId(from).record(Dial.Record.RECORD_FROM_ANSWER).timeout(30)
+                .recordingStatusCallback(baseUri + "/recording").recordingStatusCallbackMethod(HttpMethod.POST)
+                .number(new Number.Builder(number).build()).build();
+            response = new VoiceResponse.Builder().say(say).dial(dial).build();
+          }
+          return buildResponseEntity(response.toXml());
         }
       } else {
         log.info("Caller did not confirm number, ask for digits again");
-        Gather gather = new Gather.Builder().action(baseUrl + "/confirm").method(Method.POST)
+        Gather gather = new Gather.Builder().action(baseUri + "/confirm").method(HttpMethod.POST)
             .timeout(20).say(instructions()).build();
         response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
       }
@@ -171,6 +190,13 @@ public class TwilioRestController {
           .eventType(EventType.CallRecordingCompleted)
           .callSid(callSid)
           .attribute("RecordingUrl", recordingUrl)
+          .build());
+    } else {
+      log.warn("Error occurred publishing recording, sending error event");
+      eventPublisher.publish(eventTopicArn, Event.builder()
+          .eventType(EventType.Error)
+          .callSid(callSid)
+          .attribute("Message", "Received recording status " + recordingStatus)
           .build());
     }
     return new ResponseEntity<>(HttpStatus.OK);

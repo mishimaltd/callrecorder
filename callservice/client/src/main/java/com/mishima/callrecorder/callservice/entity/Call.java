@@ -25,6 +25,7 @@ public class Call {
   private String status;
   private String from;
   private String to;
+  private boolean trial;
   private int duration;
 
   private long created;
@@ -53,6 +54,7 @@ public class Call {
     private String accountId;
     private String sid;
     private String status;
+    private boolean trial;
     private String from;
     private String to;
     private int duration;
@@ -80,6 +82,11 @@ public class Call {
 
     public Builder status(String status) {
       this.status = status;
+      return this;
+    }
+
+    public Builder trial(boolean trial) {
+      this.trial = trial;
       return this;
     }
 
@@ -147,6 +154,7 @@ public class Call {
       Call call = new Call();
       call.transcriptionJobId = this.transcriptionJobId;
       call.status = this.status;
+      call.trial = trial;
       call.s3transcriptionUrl = this.s3transcriptionUrl;
       call.from = this.from;
       call.s3recordingUrl = this.s3recordingUrl;

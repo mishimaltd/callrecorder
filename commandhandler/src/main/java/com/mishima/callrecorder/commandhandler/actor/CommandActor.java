@@ -1,13 +1,17 @@
 package com.mishima.callrecorder.commandhandler.actor;
 
 import akka.actor.AbstractActor;
+import com.mishima.callrecorder.callservice.client.CallServiceClient;
+import com.mishima.callrecorder.callservice.entity.Call;
 import com.mishima.callrecorder.publisher.Publisher;
 import com.mishima.callrecorder.publisher.entity.Command;
 import com.mishima.callrecorder.publisher.entity.Event;
 import com.mishima.callrecorder.publisher.entity.Event.EventType;
 import com.mishima.callrecorder.s3service.service.S3Service;
+import com.mishima.callrecorder.twiliosmsservice.TwilioSMSService;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestTemplate;
 
@@ -18,14 +22,20 @@ public class CommandActor extends AbstractActor {
   private static final int UPLOAD_RETRY_WAIT_MS = 5000;
 
   private final Publisher eventPublisher;
+  private final CallServiceClient callServiceClient;
   private final String eventTopicArn;
   private final S3Service s3Service;
+  private final TwilioSMSService twilioSMSService;
+  private final String callServiceUri;
 
-  public CommandActor(Publisher eventPublisher, String eventTopicArn,
-      S3Service s3Service) {
+  public CommandActor(Publisher eventPublisher, CallServiceClient callServiceClient, String eventTopicArn,
+      S3Service s3Service, TwilioSMSService twilioSMSService, String callServiceUri) {
     this.eventPublisher = eventPublisher;
+    this.callServiceClient = callServiceClient;
     this.eventTopicArn = eventTopicArn;
     this.s3Service = s3Service;
+    this.twilioSMSService = twilioSMSService;
+    this.callServiceUri = callServiceUri;
   }
 
   public Receive createReceive() {
@@ -41,8 +51,10 @@ public class CommandActor extends AbstractActor {
         uploadRecording(command);
         break;
       case Billing:
-        doBilling(command);
+        billing(command);
         break;
+      case SendRecordingSMS:
+        sendSms(command);
       default:
         log.info("Unknown command type {}", command.getCommandType());
     }
@@ -95,7 +107,32 @@ public class CommandActor extends AbstractActor {
     }
   }
 
-  private void doBilling(Command command) {
+  private void billing(Command command) {
+  }
+
+  private void sendSms(Command command) {
+    String callSid = command.getCallSid();
+    Optional<Call> result = callServiceClient.findByCallSid(callSid);
+    if(result.isPresent()) {
+      Call call = result.get();
+      String from = call.getFrom();
+      String s3RecordingUrl = call.getS3recordingUrl();
+      String payload = callServiceUri + "/recording/" + s3RecordingUrl;
+      String messageSid = twilioSMSService.sendMessage(from, payload);
+      eventPublisher.publish(eventTopicArn, Event.builder()
+          .eventType(EventType.SMSNotificationSent)
+          .callSid(callSid)
+          .attribute("MessageSid", messageSid)
+          .build());
+    } else {
+      log.error("Could not find call with sid {}", callSid);
+      // Publish recording upload to s3 failed
+      eventPublisher.publish(eventTopicArn, Event.builder()
+          .eventType(EventType.Error)
+          .callSid(callSid)
+          .attribute("Message", "Unable to send SMS to caller, could not find call")
+          .build());
+    }
   }
 
 }

@@ -44,6 +44,11 @@
     </dependency>
     <dependency>
       <groupId>com.mishima</groupId>
+      <artifactId>twiliosmsservice</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.mishima</groupId>
       <artifactId>s3service</artifactId>
       <version>${project.version}</version>
     </dependency>

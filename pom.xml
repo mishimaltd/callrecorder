@@ -18,6 +18,8 @@
   <name>Callrecorder :: Parent</name>
 
   <properties>
+    <twilio-java-sdk.version>7.0.0-rc-10</twilio-java-sdk.version>
+    <twilio.version>7.23.1</twilio.version>
     <lombok.version>1.18.2</lombok.version>
     <logstash-logback-encoder.version>5.2</logstash-logback-encoder.version>
   </properties>
@@ -46,6 +48,7 @@
     <module>commandhandler</module>
     <module>actor</module>
     <module>domain</module>
+    <module>twiliosmsservice</module>
   </modules>
 
 </project>

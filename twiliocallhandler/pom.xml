@@ -16,8 +16,6 @@
   <name>Callrecorder :: Twilio Call Handler</name>
 
   <properties>
-    <twilio-java-sdk.version>7.0.0-rc-10</twilio-java-sdk.version>
-    <twilio.version>7.23.1</twilio.version>
     <libphonenumber.version>8.9.9</libphonenumber.version>
     <xstream.version>1.2.2</xstream.version>
 
@@ -56,11 +54,6 @@
     </dependency>
     <dependency>
       <groupId>com.twilio.sdk</groupId>
-      <artifactId>twilio-java-sdk</artifactId>
-      <version>${twilio-java-sdk.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.twilio.sdk</groupId>
       <artifactId>twilio</artifactId>
       <version>${twilio.version}</version>
     </dependency>
@@ -68,11 +61,6 @@
       <groupId>com.googlecode.libphonenumber</groupId>
       <artifactId>libphonenumber</artifactId>
       <version>${libphonenumber.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>jdom</groupId>
-      <artifactId>jdom</artifactId>
-      <version>1.1</version>
     </dependency>
   </dependencies>
 

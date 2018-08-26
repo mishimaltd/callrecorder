@@ -19,6 +19,7 @@ public class Event implements BaseMessage {
     CallRecordingCompleted,
     CallEnded,
     CallRecordingUploaded,
+    SMSNotificationSent,
     Error
   }
 
