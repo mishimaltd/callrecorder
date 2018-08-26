@@ -159,6 +159,7 @@ public class TwilioRestControllerIntegrationTest {
     mvc.perform(post("/api/recording")
         .header("Authorization", getAuthHeader())
         .param("CallSid", "12345")
+        .param("RecordingSid", "12345")
         .param("RecordingUrl", "http://localhost")
         .param("RecordingStatus", "complete"))
         .andExpect(status().isOk());

@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 public class CommandActor extends AbstractActor {
@@ -81,9 +80,6 @@ public class CommandActor extends AbstractActor {
 
         // Delete from Twilio
         twilioRecordingDeleterService.deleteRecording(recordingSid);
-
-        new RestTemplate().delete(recordingUrl + ".json");
-        log.info("Deleted recording url {} from Twilio", recordingUrl);
 
         // Publish recording uploaded to s3 event
         eventPublisher.publish(eventTopicArn, Event.builder()
