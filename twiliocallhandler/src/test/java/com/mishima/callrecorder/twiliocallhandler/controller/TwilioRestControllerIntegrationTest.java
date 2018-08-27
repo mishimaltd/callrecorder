@@ -161,8 +161,18 @@ public class TwilioRestControllerIntegrationTest {
         .param("CallSid", "12345")
         .param("RecordingSid", "12345")
         .param("RecordingUrl", "http://localhost")
+        .param("RecordingDuration", "100")
         .param("RecordingStatus", "complete"))
-        .andExpect(status().isOk());
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
+  public void givenCallCompletedThenReturnOK() throws Exception {
+    mvc.perform(post("/api/completed")
+        .header("Authorization", getAuthHeader())
+        .param("CallSid", "12345")
+        .param("CallDuration", "20"))
+        .andExpect(status().isNoContent());
   }
 
   private String getAuthHeader() {

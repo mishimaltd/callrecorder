@@ -33,6 +33,7 @@ public class Call {
 
   // Recording details
   private String recordingUrl;
+  private int recordingDuration;
   private String s3recordingUrl;
   private String transcriptionJobId;
   private String s3transcriptionUrl;
@@ -62,6 +63,7 @@ public class Call {
     private long lastUpdated;
     // Recording details
     private String recordingUrl;
+    private int recordingDuration;
     private String s3recordingUrl;
     private String transcriptionJobId;
     private String s3transcriptionUrl;
@@ -120,6 +122,11 @@ public class Call {
       return this;
     }
 
+    public Builder recordingDuration(int recordingDuration) {
+      this.recordingDuration = recordingDuration;
+      return this;
+    }
+
     public Builder s3recordingUrl(String s3recordingUrl) {
       this.s3recordingUrl = s3recordingUrl;
       return this;
@@ -164,6 +171,7 @@ public class Call {
       call.to = this.to;
       call.accountId = this.accountId;
       call.recordingUrl = this.recordingUrl;
+      call.recordingDuration = this.recordingDuration;
       call.billingStatus = this.billingStatus;
       call.invoiceStatus = this.invoiceStatus;
       call.lastUpdated = this.lastUpdated;

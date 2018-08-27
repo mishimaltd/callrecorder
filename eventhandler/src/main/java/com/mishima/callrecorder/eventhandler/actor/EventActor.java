@@ -75,7 +75,7 @@ public class EventActor extends AbstractActor {
     Optional<Call> result = callServiceClient.findByCallSid(callSid);
     if(result.isPresent()) {
       Call call = result.get();
-      call.setDuration(Integer.valueOf(event.getAttributes().get("Duration").toString()));
+      call.setDuration(Integer.valueOf(event.getAttributes().get("CallDuration").toString()));
       call.setLastUpdated(System.currentTimeMillis());
       callServiceClient.saveCall(call);
       log.info("Marked call sid {} as completed", callSid);
@@ -88,11 +88,13 @@ public class EventActor extends AbstractActor {
     String callSid = event.getCallSid();
     String recordingSid = (String)event.getAttributes().get("RecordingSid");
     String recordingUrl = (String)event.getAttributes().get("RecordingUrl");
+    Integer recordingDuration = (Integer)event.getAttributes().get("RecordingDuration");
     Optional<Call> result = callServiceClient.findByCallSid(callSid);
     if(result.isPresent()) {
       Call call = result.get();
       call.setStatus("RecordingComplete");
       call.setRecordingUrl(recordingUrl);
+      call.setRecordingDuration(recordingDuration);
       call.setLastUpdated(System.currentTimeMillis());
       callServiceClient.saveCall(call);
       log.info("Marked call sid {} as recording complete", callSid);

@@ -89,16 +89,16 @@ public class TwilioRestController {
   @ResponseBody
   @PostMapping(value = "/completed", produces = MediaType.APPLICATION_XML_VALUE)
   public ResponseEntity<byte[]> completed(@RequestParam("CallSid") String callSid,
-                                          @RequestParam("Duration") int duration) {
-    log.info("Received call completed for call sid {}, duration {}", callSid, duration);
+                                          @RequestParam("CallDuration") int callDuration) {
+    log.info("Received call completed for call sid {}, duration {}", callSid, callDuration);
     // Publish call ended publisher
     log.info("Publishing call completed publisher.");
     eventPublisher.publish(eventTopicArn, Event.builder()
       .eventType(EventType.CallEnded)
       .callSid(callSid)
-      .attribute("Duration", duration)
+      .attribute("CallDuration", callDuration)
       .build());
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   @ResponseBody
@@ -183,8 +183,9 @@ public class TwilioRestController {
                        @RequestParam("CallSid") String callSid,
                        @RequestParam("RecordingSid") String recordingSid,
                        @RequestParam("RecordingUrl") String recordingUrl,
+                       @RequestParam("RecordingDuration") int recordingDuration,
                        @RequestParam("RecordingStatus") String recordingStatus) {
-    log.info("Received call sid {}, status {}, recording sid {}", callSid, recordingStatus, recordingSid);
+    log.info("Received call sid {}, status {}, recording sid {}, recording duration {}", callSid, recordingStatus, recordingSid, recordingDuration);
     if("completed".equals(recordingStatus)) {
       log.info("Publishing recording completed publisher for call sid {}", callSid);
       eventPublisher.publish(eventTopicArn, Event.builder()
@@ -192,6 +193,7 @@ public class TwilioRestController {
           .callSid(callSid)
           .attribute("RecordingSid", recordingSid)
           .attribute("RecordingUrl", recordingUrl)
+          .attribute("RecordingDuration", recordingDuration)
           .build());
     } else {
       log.warn("Error occurred publishing recording, sending error event");
@@ -201,7 +203,7 @@ public class TwilioRestController {
           .attribute("Message", "Received recording status " + recordingStatus)
           .build());
     }
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   private ResponseEntity<byte[]> buildResponseEntity(String xml) {

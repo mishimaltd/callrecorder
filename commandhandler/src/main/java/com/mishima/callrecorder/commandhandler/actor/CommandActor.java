@@ -123,8 +123,7 @@ public class CommandActor extends AbstractActor {
     if(result.isPresent()) {
       Call call = result.get();
       String from = call.getFrom();
-      String s3RecordingUrl = call.getS3recordingUrl();
-      String payload = tinyUrlService.shorten(callServiceUri + "/recording/" + s3RecordingUrl);
+      String payload = generatePayload(call.getS3recordingUrl());
       String messageSid = twilioSMSService.sendMessage(from, payload);
       eventPublisher.publish(eventTopicArn, Event.builder()
           .eventType(EventType.SMSNotificationSent)
@@ -140,6 +139,11 @@ public class CommandActor extends AbstractActor {
           .attribute("Message", "Unable to send SMS to caller, could not find call")
           .build());
     }
+  }
+
+  private String generatePayload(String s3FileKey) {
+    String shortenedUrl = tinyUrlService.shorten(callServiceUri + "/recording/" + s3FileKey);
+    return "Thanks for trying out our service! Click the link below to access your recording:\n\n" + shortenedUrl;
   }
 
 }
