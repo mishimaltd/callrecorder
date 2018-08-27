@@ -6,6 +6,7 @@ import akka.actor.Props;
 import com.mishima.callrecorder.actor.ActorFactory;
 import com.mishima.callrecorder.callservice.client.CallServiceClient;
 import com.mishima.callrecorder.commandhandler.actor.CommandActor;
+import com.mishima.callrecorder.commandhandler.tinyurl.TinyUrlService;
 import com.mishima.callrecorder.publisher.Publisher;
 import com.mishima.callrecorder.s3service.service.S3Service;
 import com.mishima.callrecorder.twilioservice.TwilioRecordingDeleterService;
@@ -35,12 +36,25 @@ public class CommandActorFactory implements ActorFactory {
   @Autowired
   private TwilioRecordingDeleterService twilioRecordingDeleterService;
 
+  @Autowired
+  private TinyUrlService tinyUrlService;
+
   @Value("${callservice.uri}")
   private String callServiceUri;
 
   @Override
   public ActorRef create(ActorContext context) {
-    return context.actorOf(Props.create(CommandActor.class, publisher, callServiceClient, eventTopicArn, s3Service, twilioSMSService, twilioRecordingDeleterService, callServiceUri));
+    return context.actorOf(Props.create(
+        CommandActor.class,
+        publisher,
+        callServiceClient,
+        eventTopicArn,
+        s3Service,
+        twilioSMSService,
+        twilioRecordingDeleterService,
+        tinyUrlService,
+        callServiceUri
+    ));
   }
 
 }

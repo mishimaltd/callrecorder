@@ -20,7 +20,7 @@ public class RecordingController {
 
   @GetMapping("/recording/{key}")
   public void download(@PathVariable("key") String key, HttpServletResponse res) throws Exception {
-    res.setContentType("audio/wav");
+    res.setContentType("audio/mpeg");
     IOUtils.copy(s3Service.download(key), res.getOutputStream());
   }
 

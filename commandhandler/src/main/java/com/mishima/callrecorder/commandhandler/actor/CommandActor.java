@@ -3,6 +3,7 @@ package com.mishima.callrecorder.commandhandler.actor;
 import akka.actor.AbstractActor;
 import com.mishima.callrecorder.callservice.client.CallServiceClient;
 import com.mishima.callrecorder.callservice.entity.Call;
+import com.mishima.callrecorder.commandhandler.tinyurl.TinyUrlService;
 import com.mishima.callrecorder.publisher.Publisher;
 import com.mishima.callrecorder.publisher.entity.Command;
 import com.mishima.callrecorder.publisher.entity.Event;
@@ -27,16 +28,19 @@ public class CommandActor extends AbstractActor {
   private final S3Service s3Service;
   private final TwilioSMSService twilioSMSService;
   private final TwilioRecordingDeleterService twilioRecordingDeleterService;
+  private final TinyUrlService tinyUrlService;
   private final String callServiceUri;
 
   public CommandActor(Publisher eventPublisher, CallServiceClient callServiceClient, String eventTopicArn,
-      S3Service s3Service, TwilioSMSService twilioSMSService, TwilioRecordingDeleterService twilioRecordingDeleterService, String callServiceUri) {
+      S3Service s3Service, TwilioSMSService twilioSMSService, TwilioRecordingDeleterService twilioRecordingDeleterService,
+      TinyUrlService tinyUrlService, String callServiceUri) {
     this.eventPublisher = eventPublisher;
     this.callServiceClient = callServiceClient;
     this.eventTopicArn = eventTopicArn;
     this.s3Service = s3Service;
     this.twilioSMSService = twilioSMSService;
     this.twilioRecordingDeleterService = twilioRecordingDeleterService;
+    this.tinyUrlService = tinyUrlService;
     this.callServiceUri = callServiceUri;
   }
 
@@ -57,6 +61,7 @@ public class CommandActor extends AbstractActor {
         break;
       case SendRecordingSMS:
         sendSms(command);
+        break;
       default:
         log.info("Unknown command type {}", command.getCommandType());
     }
@@ -72,9 +77,9 @@ public class CommandActor extends AbstractActor {
     while(!uploaded && ++retries < MAX_UPLOAD_RETRIES) {
       try {
         log.info("Upload attempt {} for recording from url {}", retries, recordingUrl);
-        URL url = new URL(recordingUrl);
+        URL url = new URL(recordingUrl + ".mp3"); // Download as mp3 not default wav format
         InputStream is = url.openStream();
-        String fileKey = s3Service.upload(is, "audio/wav");
+        String fileKey = s3Service.upload(is, "audio/mpeg");
         uploaded = true;
         log.info("Uploaded recording from url {} to fileKey {}", recordingUrl, fileKey);
 
@@ -119,7 +124,7 @@ public class CommandActor extends AbstractActor {
       Call call = result.get();
       String from = call.getFrom();
       String s3RecordingUrl = call.getS3recordingUrl();
-      String payload = callServiceUri + "/recording/" + s3RecordingUrl;
+      String payload = tinyUrlService.shorten(callServiceUri + "/recording/" + s3RecordingUrl);
       String messageSid = twilioSMSService.sendMessage(from, payload);
       eventPublisher.publish(eventTopicArn, Event.builder()
           .eventType(EventType.SMSNotificationSent)
