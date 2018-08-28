@@ -46,8 +46,10 @@ public class EventActor extends AbstractActor {
         break;
       case SMSNotificationSent:
         smsNotificationSent(event);
+        break;
       case Error:
         error(event);
+        break;
       default:
         log.info("Unknown publisher type {}", event.getEventType());
     }
@@ -148,7 +150,7 @@ public class EventActor extends AbstractActor {
       callService.save(call);
       log.info("Marked call sid {} as sms notification sent", callSid);
     } else {
-      log.error("Error occurred marking recording complete, could not find call by sid {}", callSid);
+      log.error("Error occurred marking sms notification sent, could not find call by sid {}", callSid);
     }
   }
 
@@ -160,9 +162,9 @@ public class EventActor extends AbstractActor {
       call.setStatus("Error");
       call.setLastUpdated(System.currentTimeMillis());
       callService.save(call);
-      log.info("Marked call sid {} as sms notification sent", callSid);
+      log.info("Marked call sid {} as error state", callSid);
     } else {
-      log.error("Error occurred marking recording complete, could not find call by sid {}", callSid);
+      log.error("Error occurred marking error, could not find call by sid {}", callSid);
     }
   }
 
