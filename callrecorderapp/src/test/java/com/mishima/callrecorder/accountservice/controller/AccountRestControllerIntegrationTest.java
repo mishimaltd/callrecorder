@@ -59,7 +59,7 @@ public class AccountRestControllerIntegrationTest {
   @Test
   public void givenExistingPhoneNumberThenReturnAccountId() throws Exception {
     for(String phoneNumber: phoneNumbers) {
-      mvc.perform(get("/api/getAccountIdByPhoneNumber")
+      mvc.perform(get("/api/accountservice/getAccountIdByPhoneNumber")
           .param("phoneNumber", phoneNumber))
           .andExpect(status().isOk())
           .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN))
@@ -69,7 +69,7 @@ public class AccountRestControllerIntegrationTest {
 
   @Test
   public void givenExistingAccountIdThenReturnAccount() throws Exception {
-    String json = mvc.perform(get("/api/getAccountById")
+    String json = mvc.perform(get("/api/accountservice/getAccountById")
         .param("accountId", account.getId()))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))

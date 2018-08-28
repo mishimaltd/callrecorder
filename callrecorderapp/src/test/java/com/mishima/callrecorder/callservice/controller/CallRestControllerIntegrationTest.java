@@ -59,7 +59,7 @@ public class CallRestControllerIntegrationTest {
 
   @Test
   public void givenExistingCallSidThenReturnCall() throws Exception {
-    String json = mvc.perform(get("/api/getCallBySid")
+    String json = mvc.perform(get("/api/callservice/getCallBySid")
         .param("sid", call.getSid()))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -71,7 +71,7 @@ public class CallRestControllerIntegrationTest {
   @Test
   public void givenExistingCallThenUpdateReturnsUpdatedCall() throws Exception {
     call.setStatus("updated");
-    String json = mvc.perform(post("/api/saveCall")
+    String json = mvc.perform(post("/api/callservice/saveCall")
         .content(new ObjectMapper().writeValueAsString(call))
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -83,7 +83,7 @@ public class CallRestControllerIntegrationTest {
 
   @Test
   public void givenExistingAccountIdThenReturnCalls() throws Exception {
-    String json = mvc.perform(get("/api/getCallsByAccountId")
+    String json = mvc.perform(get("/api/callservice/getCallsByAccountId")
         .param("accountId", call.getAccountId()))
         .andExpect(status().isOk())
         .andDo(print())
