@@ -1,7 +1,7 @@
 package com.mishima.callrecorder.callservice.controller;
 
 import com.amazonaws.util.IOUtils;
-import com.mishima.callrecorder.s3service.service.S3Service;
+import com.mishima.callrecorder.callservice.service.RecordingService;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class RecordingController {
 
   @Autowired
-  private S3Service s3Service;
+  private RecordingService recordingService;
 
   @GetMapping("/recording/{key}")
   public void download(@PathVariable("key") String key, HttpServletResponse res) throws Exception {
     res.setContentType("audio/mpeg");
-    IOUtils.copy(s3Service.download(key), res.getOutputStream());
+    IOUtils.copy(recordingService.download(key), res.getOutputStream());
   }
 
 }

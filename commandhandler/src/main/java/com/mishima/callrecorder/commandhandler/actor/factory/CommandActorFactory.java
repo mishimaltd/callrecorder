@@ -5,6 +5,7 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import com.mishima.callrecorder.actor.ActorFactory;
 import com.mishima.callrecorder.callservice.client.CallServiceClient;
+import com.mishima.callrecorder.callservice.service.CallService;
 import com.mishima.callrecorder.commandhandler.actor.CommandActor;
 import com.mishima.callrecorder.commandhandler.tinyurl.TinyUrlService;
 import com.mishima.callrecorder.publisher.Publisher;
@@ -25,7 +26,7 @@ public class CommandActorFactory implements ActorFactory {
   private String eventTopicArn;
 
   @Autowired
-  private CallServiceClient callServiceClient;
+  private CallService callService;
 
   @Autowired
   private S3Service s3Service;
@@ -47,7 +48,7 @@ public class CommandActorFactory implements ActorFactory {
     return context.actorOf(Props.create(
         CommandActor.class,
         publisher,
-        callServiceClient,
+        callService,
         eventTopicArn,
         s3Service,
         twilioSMSService,

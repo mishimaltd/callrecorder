@@ -1,8 +1,8 @@
 package com.mishima.callrecorder.commandhandler.actor;
 
 import akka.actor.AbstractActor;
-import com.mishima.callrecorder.callservice.client.CallServiceClient;
 import com.mishima.callrecorder.callservice.entity.Call;
+import com.mishima.callrecorder.callservice.service.CallService;
 import com.mishima.callrecorder.commandhandler.tinyurl.TinyUrlService;
 import com.mishima.callrecorder.publisher.Publisher;
 import com.mishima.callrecorder.publisher.entity.Command;
@@ -23,7 +23,7 @@ public class CommandActor extends AbstractActor {
   private static final int UPLOAD_RETRY_WAIT_MS = 5000;
 
   private final Publisher eventPublisher;
-  private final CallServiceClient callServiceClient;
+  private final CallService callService;
   private final String eventTopicArn;
   private final S3Service s3Service;
   private final TwilioSMSService twilioSMSService;
@@ -31,11 +31,11 @@ public class CommandActor extends AbstractActor {
   private final TinyUrlService tinyUrlService;
   private final String callServiceUri;
 
-  public CommandActor(Publisher eventPublisher, CallServiceClient callServiceClient, String eventTopicArn,
+  public CommandActor(Publisher eventPublisher, CallService callService, String eventTopicArn,
       S3Service s3Service, TwilioSMSService twilioSMSService, TwilioRecordingDeleterService twilioRecordingDeleterService,
       TinyUrlService tinyUrlService, String callServiceUri) {
     this.eventPublisher = eventPublisher;
-    this.callServiceClient = callServiceClient;
+    this.callService = callService;
     this.eventTopicArn = eventTopicArn;
     this.s3Service = s3Service;
     this.twilioSMSService = twilioSMSService;
@@ -119,7 +119,7 @@ public class CommandActor extends AbstractActor {
 
   private void sendSms(Command command) {
     String callSid = command.getCallSid();
-    Optional<Call> result = callServiceClient.findByCallSid(callSid);
+    Optional<Call> result = callService.findBySid(callSid);
     if(result.isPresent()) {
       Call call = result.get();
       String from = call.getFrom();

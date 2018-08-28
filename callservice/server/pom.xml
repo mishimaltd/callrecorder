@@ -17,14 +17,6 @@
   <properties>
     <aws-java-sdk.version>1.11.390</aws-java-sdk.version>
     <amazon-sqs-java-messaging-lib.version>1.0.4</amazon-sqs-java-messaging-lib.version>
-
-    <!-- Properties for EB install -->
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-    <beanstalk.versionLabel>${project.artifactId}:${maven.build.timestamp}</beanstalk.versionLabel>
-    <beanstalk.versionsToKeep>3</beanstalk.versionsToKeep>
-    <beanstalk.dryRun>false</beanstalk.dryRun>
-
   </properties>
 
   <dependencies>
@@ -72,72 +64,5 @@
       <type>jar</type>
     </dependency>
   </dependencies>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>br.com.ingenieux</groupId>
-          <artifactId>beanstalk-maven-plugin</artifactId>
-          <version>0.2.6</version>
-          <configuration>
-            <applicationName>callrecorder-callservice</applicationName>
-            <s3Bucket>elasticbeanstalk-us-east-1-594721727426</s3Bucket>
-            <s3Key>${project.artifactId}/${project.build.finalName}-${beanstalk.versionLabel}.jar</s3Key>
-          </configuration>
-          <executions>
-            <execution>
-              <phase>verify</phase>
-              <goals>
-                <goal>clean-previous-versions</goal>
-                <goal>upload-source-bundle</goal>
-                <goal>create-application-version</goal>
-                <goal>update-environment</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-
-    <plugins>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>br.com.ingenieux</groupId>
-        <artifactId>beanstalk-maven-plugin</artifactId>
-        <version>0.2.6</version>
-        <configuration>
-          <accessKey>${env.AWS_ACCESS_KEY_ID}</accessKey>
-          <secretKey>${env.AWS_SECRET_ACCESS_KEY}</secretKey>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
-  <profiles>
-    <profile>
-      <id>deploy-to-amazon</id>
-      <activation>
-        <property>
-          <name>deploy</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>br.com.ingenieux</groupId>
-            <artifactId>beanstalk-maven-plugin</artifactId>
-            <configuration>
-              <cnamePrefix>CallrecorderCallservice-env</cnamePrefix>
-              <environmentName>CallrecorderCallservice-env</environmentName>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
 </project>

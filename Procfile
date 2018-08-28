@@ -1,0 +1,1 @@
+web: java $JAVA_OPTS -jar callrecorderapp/target/callrecorder-app-1.0.0.SNAPSHOT.jar

@@ -17,15 +17,6 @@
 
   <properties>
     <libphonenumber.version>8.9.9</libphonenumber.version>
-    <xstream.version>1.2.2</xstream.version>
-
-    <!-- Properties for EB install -->
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-    <beanstalk.versionLabel>${project.artifactId}:${maven.build.timestamp}</beanstalk.versionLabel>
-    <beanstalk.versionsToKeep>3</beanstalk.versionsToKeep>
-    <beanstalk.dryRun>false</beanstalk.dryRun>
-
   </properties>
 
   <dependencies>
@@ -36,7 +27,7 @@
     </dependency>
     <dependency>
       <groupId>com.mishima</groupId>
-      <artifactId>accountservice-client</artifactId>
+      <artifactId>accountservice-server</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -63,72 +54,5 @@
       <version>${libphonenumber.version}</version>
     </dependency>
   </dependencies>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>br.com.ingenieux</groupId>
-          <artifactId>beanstalk-maven-plugin</artifactId>
-          <version>0.2.6</version>
-          <configuration>
-            <applicationName>twiliocallhandler</applicationName>
-            <s3Bucket>elasticbeanstalk-us-east-1-594721727426</s3Bucket>
-            <s3Key>${project.artifactId}/${project.build.finalName}-${beanstalk.versionLabel}.jar</s3Key>
-          </configuration>
-          <executions>
-            <execution>
-              <phase>verify</phase>
-              <goals>
-                <goal>clean-previous-versions</goal>
-                <goal>upload-source-bundle</goal>
-                <goal>create-application-version</goal>
-                <goal>update-environment</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-
-    <plugins>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>br.com.ingenieux</groupId>
-        <artifactId>beanstalk-maven-plugin</artifactId>
-        <version>0.2.6</version>
-        <configuration>
-          <accessKey>${env.AWS_ACCESS_KEY_ID}</accessKey>
-          <secretKey>${env.AWS_SECRET_ACCESS_KEY}</secretKey>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
-  <profiles>
-    <profile>
-      <id>deploy-to-amazon</id>
-      <activation>
-        <property>
-          <name>deploy</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>br.com.ingenieux</groupId>
-            <artifactId>beanstalk-maven-plugin</artifactId>
-            <configuration>
-              <cnamePrefix>Twiliocallhandler-env</cnamePrefix>
-              <environmentName>Twiliocallhandler-env</environmentName>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
 </project>

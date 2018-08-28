@@ -1,7 +1,7 @@
 package com.mishima.callrecorder.callservice.controller;
 
 import com.mishima.callrecorder.callservice.entity.Call;
-import com.mishima.callrecorder.callservice.persistence.CallRepository;
+import com.mishima.callrecorder.callservice.service.CallService;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -21,13 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class CallRestController {
 
   @Autowired
-  private CallRepository callRepository;
+  private CallService callService;
 
   @ResponseBody
   @GetMapping(value = "/getCallsByAccountId", produces = MediaType.APPLICATION_JSON_VALUE)
   public List<Call> getCallsByAccountId(@RequestParam("accountId") String accountId) {
     log.info("Retrieving calls by accountId {}", accountId);
-    List<Call> calls = callRepository.findByAccountIdOrderByCreatedDesc(accountId);
+    List<Call> calls = callService.findByAccountId(accountId);
     log.info("Found {} calls for accountId {}", calls.size(), accountId);
     return calls;
   }
@@ -37,7 +37,7 @@ public class CallRestController {
   @GetMapping(value = "/getCallBySid", produces = MediaType.APPLICATION_JSON_VALUE)
   public Call getCallBySid(@RequestParam("sid") String callSid) {
     log.info("Retrieving call by sid {}", callSid);
-    Optional<Call> result = callRepository.findBySid(callSid);
+    Optional<Call> result = callService.findBySid(callSid);
     if(result.isPresent()) {
       Call call = result.get();
       log.info("Found call {} for sid {}", call, callSid);
@@ -52,7 +52,7 @@ public class CallRestController {
   @PostMapping(value="/saveCall", produces = MediaType.APPLICATION_JSON_VALUE)
   public Call saveCall(@RequestBody Call call) {
     log.info("Saving call {}", call);
-    callRepository.save(call);
+    callService.save(call);
     return call;
   }
 

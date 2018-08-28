@@ -1,6 +1,7 @@
 package com.mishima.callrecorder.twiliocallhandler.controller;
 
-import com.mishima.callrecorder.accountservice.service.client.AccountServiceClient;
+import com.mishima.callrecorder.accountservice.entity.Account;
+import com.mishima.callrecorder.accountservice.service.AccountService;
 import com.mishima.callrecorder.publisher.Publisher;
 import com.mishima.callrecorder.publisher.entity.Event;
 import com.mishima.callrecorder.publisher.entity.Event.EventType;
@@ -32,11 +33,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/twilio")
 public class TwilioRestController {
 
   @Autowired
-  private AccountServiceClient accountServiceClient;
+  private AccountService accountService;
 
   @Autowired
   private Publisher eventPublisher;
@@ -59,14 +60,15 @@ public class TwilioRestController {
     log.info("Received call sid {} from number {}", callSid, from);
     VoiceResponse response;
     // Check there is an account associated with the inbound number
-    Optional<String> accountId = accountServiceClient.getAccountIdByPhoneNumber(from);
-    if(!accountId.isPresent()) {
+    Optional<Account> result = accountService.findByPhoneNumbers(from);
+    if(!result.isPresent()) {
       log.info("No account found for incoming call from {}", from);
       response = new VoiceResponse.Builder().say(noAccount()).build();
     } else {
       // Store details of this call in the session
+      Account account = result.get();
       request.getSession().setAttribute("CallSid", callSid);
-      request.getSession().setAttribute("AccountId", accountId);
+      request.getSession().setAttribute("AccountId", account.getId());
       request.getSession().setAttribute("Trial", trial);
 
       // Publish call initiated publisher
@@ -74,7 +76,7 @@ public class TwilioRestController {
       eventPublisher.publish(eventTopicArn, Event.builder()
           .eventType(EventType.CallInitiated)
           .callSid(callSid)
-          .attribute("AccountId", accountId.get())
+          .attribute("AccountId", account.getId())
           .attribute("From", from)
           .attribute("Trial", trial)
           .build());

@@ -49,6 +49,7 @@
     <module>actor</module>
     <module>domain</module>
     <module>twilioservice</module>
+    <module>callrecorderapp</module>
   </modules>
 
 </project>
