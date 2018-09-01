@@ -16,7 +16,7 @@ public class TwilioWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http.antMatcher("/api/twilio/**")
+    http.csrf().disable().antMatcher("/api/twilio/**")
         .authorizeRequests().anyRequest().hasRole("TWILIO")
         .and().httpBasic().authenticationEntryPoint(authenticationEntryPoint);
   }
