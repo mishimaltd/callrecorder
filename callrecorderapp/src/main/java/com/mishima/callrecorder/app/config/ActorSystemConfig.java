@@ -34,4 +34,5 @@ public class ActorSystemConfig {
     ActorRef supervisor = actorSystem.actorOf(Props.create(SupervisorActor.class, eventActorFactory));
     return new EventHandler(supervisor);
   }
+
 }

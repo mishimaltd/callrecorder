@@ -28,7 +28,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http.csrf().disable().authorizeRequests()
-        .antMatchers("/", "/home", "/api/twilio/**").permitAll()
+        .antMatchers("/", "/home", "/favicon.ico", "/static/**", "/api/twilio/**").permitAll()
         .antMatchers("/api/**").permitAll()
         .anyRequest().authenticated()
         .and()

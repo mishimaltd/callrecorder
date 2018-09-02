@@ -29,6 +29,8 @@ public class SQSConfig {
 
   @SuppressWarnings("deprecated")
   SQSConnectionFactory connectionFactory =
+
+
       SQSConnectionFactory.builder()
           .withRegion(Region.getRegion(Regions.US_EAST_1))
           .withAWSCredentialsProvider(new DefaultAWSCredentialsProviderChain())
