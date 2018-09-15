@@ -64,6 +64,7 @@ public class EventActor extends AbstractActor {
         .status("Created")
         .trial((Boolean)event.getAttributes().get("Trial"))
         .from((String)event.getAttributes().get("From"))
+        .paid(false)
         .created(now)
         .lastUpdated(now)
         .build();
@@ -120,15 +121,15 @@ public class EventActor extends AbstractActor {
       call.setStatus("RecordingUploaded");
       call.setS3recordingUrl(s3FileKey);
       call.setLastUpdated(System.currentTimeMillis());
-      callService.save(call);
+      call = callService.save(call);
       log.info("Marked call sid {} as recording uploaded", callSid);
       CommandType commandType;
       if(call.isTrial()) {
         log.info("Call sid {} is a trial, will send SendRecordingSMS command");
         commandType = CommandType.SendRecordingSMS;
       } else {
-        log.info("Call sid {} is not a trial, will send Billing command");
-        commandType = CommandType.Billing;
+        log.info("Call sid {} is not a trial, will send SendEmail command");
+        commandType = CommandType.SendRecordingEmail;
       }
       publisher.publish(commandTopicArn,
           Command.builder()

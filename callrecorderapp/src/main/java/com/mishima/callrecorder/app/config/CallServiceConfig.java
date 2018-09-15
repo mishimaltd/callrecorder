@@ -9,6 +9,7 @@ import com.mishima.callrecorder.s3service.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 @Configuration
 public class CallServiceConfig {

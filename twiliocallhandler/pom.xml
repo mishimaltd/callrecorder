@@ -15,10 +15,6 @@
   <artifactId>twiliocallhandler</artifactId>
   <name>Callrecorder :: Twilio Call Handler</name>
 
-  <properties>
-    <libphonenumber.version>8.9.9</libphonenumber.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>com.mishima</groupId>

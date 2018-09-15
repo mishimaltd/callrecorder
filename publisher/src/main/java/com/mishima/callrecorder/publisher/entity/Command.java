@@ -17,6 +17,7 @@ public class Command implements BaseMessage {
   public enum CommandType {
     UploadRecording,
     SendRecordingSMS,
+    SendRecordingEmail,
     Billing
   }
 

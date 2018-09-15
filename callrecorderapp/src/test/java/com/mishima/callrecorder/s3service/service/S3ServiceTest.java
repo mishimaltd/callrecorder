@@ -11,6 +11,10 @@ import com.amazonaws.util.IOUtils;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
@@ -29,6 +33,11 @@ public class S3ServiceTest {
     byte[] content = IOUtils.toByteArray(s3Service.download(fileKey));
     String downloaded = new String(content, StandardCharsets.UTF_8);
     assertEquals(text, downloaded);
+
+    // Generate pre-signed url
+    Date date = Date.from(LocalDateTime.now().plusDays(1).atZone(ZoneId.systemDefault()).toInstant());
+    String preSignedUrl = s3Service.getPresignedUrl(fileKey, date);
+    assertNotNull(preSignedUrl);
   }
 
 

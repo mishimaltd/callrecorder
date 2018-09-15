@@ -32,7 +32,7 @@ public class AccountRepositoryTest {
 
   @Before
   public void setup() {
-    Optional<Account> result = accountRepository.findByUsername(username);
+    Optional<Account> result = accountRepository.findByUsernameIgnoreCase(username);
     if(!result.isPresent()) {
       account = Account.builder().username(username).phoneNumbers(phoneNumbers).build();
       accountRepository.save(account);
@@ -48,7 +48,7 @@ public class AccountRepositoryTest {
 
   @Test
   public void testFindAccountByUsername() {
-    Optional<Account> saved = accountRepository.findByUsername(username);
+    Optional<Account> saved = accountRepository.findByUsernameIgnoreCase(username);
     assertTrue(saved.isPresent());
     assertEquals(account.getId(), saved.get().getId());
   }

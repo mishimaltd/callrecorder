@@ -13,6 +13,9 @@ import com.mishima.callrecorder.twilioservice.TwilioRecordingDeleterService;
 import com.mishima.callrecorder.twilioservice.TwilioSMSService;
 import java.io.InputStream;
 import java.net.URL;
+import java.sql.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,11 +32,10 @@ public class CommandActor extends AbstractActor {
   private final TwilioSMSService twilioSMSService;
   private final TwilioRecordingDeleterService twilioRecordingDeleterService;
   private final TinyUrlService tinyUrlService;
-  private final String callServiceUri;
 
   public CommandActor(Publisher eventPublisher, CallService callService, String eventTopicArn,
       S3Service s3Service, TwilioSMSService twilioSMSService, TwilioRecordingDeleterService twilioRecordingDeleterService,
-      TinyUrlService tinyUrlService, String callServiceUri) {
+      TinyUrlService tinyUrlService) {
     this.eventPublisher = eventPublisher;
     this.callService = callService;
     this.eventTopicArn = eventTopicArn;
@@ -41,7 +43,6 @@ public class CommandActor extends AbstractActor {
     this.twilioSMSService = twilioSMSService;
     this.twilioRecordingDeleterService = twilioRecordingDeleterService;
     this.tinyUrlService = tinyUrlService;
-    this.callServiceUri = callServiceUri;
   }
 
   public Receive createReceive() {
@@ -56,11 +57,14 @@ public class CommandActor extends AbstractActor {
       case UploadRecording:
         uploadRecording(command);
         break;
-      case Billing:
-        billing(command);
+      case SendRecordingEmail:
+        sendEmail(command);
         break;
       case SendRecordingSMS:
         sendSms(command);
+        break;
+      case Billing:
+        billing(command);
         break;
       default:
         log.info("Unknown command type {}", command.getCommandType());
@@ -117,6 +121,22 @@ public class CommandActor extends AbstractActor {
   private void billing(Command command) {
   }
 
+  private void sendEmail(Command command) {
+    String callSid = command.getCallSid();
+    Optional<Call> result = callService.findBySid(callSid);
+    if(result.isPresent()) {
+
+    } else {
+      log.error("Could not find call with sid {}", callSid);
+      // Publish recording upload to s3 failed
+      eventPublisher.publish(eventTopicArn, Event.builder()
+          .eventType(EventType.Error)
+          .callSid(callSid)
+          .attribute("Message", "Unable to send Email to caller, could not find call")
+          .build());
+    }
+  }
+
   private void sendSms(Command command) {
     String callSid = command.getCallSid();
     Optional<Call> result = callService.findBySid(callSid);
@@ -142,7 +162,9 @@ public class CommandActor extends AbstractActor {
   }
 
   private String generatePayload(String s3FileKey) {
-    String shortenedUrl = tinyUrlService.shorten(callServiceUri + "/recording/" + s3FileKey);
+    String preSignedUrl = s3Service.getPresignedUrl(s3FileKey, Date.from(LocalDateTime.now().plusMonths(1).atZone(
+        ZoneId.systemDefault()).toInstant()));
+    String shortenedUrl = tinyUrlService.shorten(preSignedUrl);
     return "Thanks for trying out our service! Click the link below to access your recording:\n\n" + shortenedUrl;
   }
 

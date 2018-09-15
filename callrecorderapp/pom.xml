@@ -46,6 +46,11 @@
     </dependency>
     <dependency>
       <groupId>com.mishima</groupId>
+      <artifactId>stripe-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.mishima</groupId>
       <artifactId>event-handler</artifactId>
       <version>${project.version}</version>
     </dependency>

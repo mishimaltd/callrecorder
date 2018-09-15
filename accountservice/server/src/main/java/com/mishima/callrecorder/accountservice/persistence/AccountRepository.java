@@ -10,12 +10,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AccountRepository extends CrudRepository<Account, String> {
 
-  @Nullable
-  Optional<Account> findByUsername(String username);
+  Optional<Account> findByUsernameIgnoreCase(String username);
 
-
-  @Nullable
-  @Query("{ 'phoneNumbers' : ?0 }")
   Optional<Account> findByPhoneNumbers(String phoneNumber);
 
 }

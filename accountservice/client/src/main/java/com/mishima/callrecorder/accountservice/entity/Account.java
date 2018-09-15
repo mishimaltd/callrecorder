@@ -20,7 +20,9 @@ public class Account {
   private String id;
   @Indexed(unique = true)
   private String username;
+  private String password;
   private List<String> phoneNumbers;
+  private String stripeId;
 
   private Account() {}
 
@@ -31,10 +33,17 @@ public class Account {
   public static final class Builder {
 
     private String username;
+    private String password;
     private List<String> phoneNumbers;
+    private String stripeId;
 
     public Builder username(String username) {
       this.username = username;
+      return this;
+    }
+
+    public Builder password(String password) {
+      this.password = password;
       return this;
     }
 
@@ -43,10 +52,17 @@ public class Account {
       return this;
     }
 
+    public Builder stripeId(String stripeId) {
+      this.stripeId = stripeId;
+      return this;
+    }
+
     public Account build() {
       Account account = new Account();
       account.setUsername(username);
+      account.setPassword(password);
       account.setPhoneNumbers(phoneNumbers);
+      account.setStripeId(stripeId);
       return account;
     }
   }

@@ -22,6 +22,7 @@
     <twilio.version>7.23.1</twilio.version>
     <lombok.version>1.18.2</lombok.version>
     <logstash-logback-encoder.version>5.2</logstash-logback-encoder.version>
+    <libphonenumber.version>8.9.9</libphonenumber.version>
   </properties>
 
   <dependencies>
@@ -50,6 +51,9 @@
     <module>domain</module>
     <module>twilioservice</module>
     <module>callrecorderapp</module>
+    <module>authentication</module>
+    <module>stripeclient</module>
+    <module>emailservice</module>
   </modules>
 
 </project>

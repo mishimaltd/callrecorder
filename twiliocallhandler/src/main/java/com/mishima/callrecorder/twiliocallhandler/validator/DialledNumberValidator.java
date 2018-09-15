@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DialledNumberValidator {
 
-  private PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
+  private final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
 
   public boolean checkNumberIsValid(String phoneNumber) {
     log.info("Validating phone number {}", phoneNumber);
