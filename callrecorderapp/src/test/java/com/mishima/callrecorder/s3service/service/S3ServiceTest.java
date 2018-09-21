@@ -35,7 +35,7 @@ public class S3ServiceTest {
     assertEquals(text, downloaded);
 
     // Generate pre-signed url
-    Date date = Date.from(LocalDateTime.now().plusDays(1).atZone(ZoneId.systemDefault()).toInstant());
+    Date date = Date.from(LocalDateTime.now().plusDays(7).atZone(ZoneId.systemDefault()).toInstant());
     String preSignedUrl = s3Service.getPresignedUrl(fileKey, date);
     assertNotNull(preSignedUrl);
   }

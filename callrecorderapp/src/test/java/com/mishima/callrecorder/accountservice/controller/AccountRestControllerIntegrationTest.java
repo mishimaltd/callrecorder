@@ -1,5 +1,9 @@
 package com.mishima.callrecorder.accountservice.controller;
 
+import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
+import static com.mishima.callrecorder.app.config.SecurityConstants.EXPIRATION_TIME;
+import static com.mishima.callrecorder.app.config.SecurityConstants.HEADER_STRING;
+import static com.mishima.callrecorder.app.config.SecurityConstants.TOKEN_PREFIX;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -9,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mishima.callrecorder.accountservice.entity.Account;
@@ -19,6 +24,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -44,14 +51,20 @@ public class AccountRestControllerIntegrationTest {
   @Autowired
   private AccountRepository accountRepository;
 
+  @Value("${secret.key}")
+  private String secret;
+
   private List<String> phoneNumbers = Arrays.asList("+11223344", "+22334455");
 
   private Account account;
   private String accountId;
 
+  private String username = "myusername";
+
   @Before
   public void setup() {
     String username = "myusername";
+
     Optional<Account> result = accountRepository.findByUsernameIgnoreCase(username);
     if(!result.isPresent()) {
       account = Account.builder().username(username).phoneNumbers(phoneNumbers).build();
@@ -73,6 +86,7 @@ public class AccountRestControllerIntegrationTest {
   public void givenExistingPhoneNumberThenReturnAccountId() throws Exception {
     for(String phoneNumber: phoneNumbers) {
       mvc.perform(get("/api/accountservice/getAccountIdByPhoneNumber")
+          .header(HEADER_STRING, getAuthHeader())
           .param("phoneNumber", phoneNumber))
           .andExpect(status().isOk())
           .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN))
@@ -83,6 +97,7 @@ public class AccountRestControllerIntegrationTest {
   @Test
   public void givenInvalidPhoneNumberThenReturnNotFound() throws Exception {
     mvc.perform(get("/api/accountservice/getAccountIdByPhoneNumber")
+        .header(HEADER_STRING, getAuthHeader())
         .param("phoneNumber", "dummy"))
         .andExpect(status().isNotFound());
   }
@@ -90,6 +105,7 @@ public class AccountRestControllerIntegrationTest {
   @Test
   public void givenExistingAccountIdThenReturnAccount() throws Exception {
     String json = mvc.perform(get("/api/accountservice/getAccountById")
+        .header(HEADER_STRING, getAuthHeader())
         .param("accountId", account.getId()))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -101,6 +117,7 @@ public class AccountRestControllerIntegrationTest {
   @Test
   public void givenInvalidAccountIdThenReturnNotFound() throws Exception {
     mvc.perform(get("/api/accountservice/getAccountById")
+        .header(HEADER_STRING, getAuthHeader())
         .param("accountId", "dummy"))
         .andExpect(status().isNotFound());
   }
@@ -108,6 +125,7 @@ public class AccountRestControllerIntegrationTest {
   @Test
   public void givenExistingUsernameThenReturnAccount() throws Exception {
     String json = mvc.perform(get("/api/accountservice/getAccountByUsername")
+        .header(HEADER_STRING, getAuthHeader())
         .param("username", account.getUsername()))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -119,19 +137,9 @@ public class AccountRestControllerIntegrationTest {
   @Test
   public void givenInvalidUsernameThenReturnNotFound() throws Exception {
     mvc.perform(get("/api/accountservice/getAccountByUsername")
+        .header(HEADER_STRING, getAuthHeader())
         .param("username", "dummy"))
         .andExpect(status().isNotFound());
-  }
-
-  @Test
-  public void givenAccountDeletedThenExpectFewerAccounts() throws Exception {
-    List<Account> accountsBefore = getAllAccounts();
-    assertFalse(accountsBefore.isEmpty());
-    mvc.perform(get("/api/accountservice/delete")
-        .param("accountId", account.getId()))
-        .andExpect(status().isOk());
-    List<Account> accountsAfter = getAllAccounts();
-    assertTrue(accountsBefore.size() > accountsAfter.size());
   }
 
   @Test
@@ -190,13 +198,12 @@ public class AccountRestControllerIntegrationTest {
     assertTrue(fieldErrors.get("cardNumber").contains("Card number is invalid"));
   }
 
-
-  private List<Account> getAllAccounts() throws Exception {
-    String json = mvc.perform(get("/api/accountservice/accounts"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-        .andReturn().getResponse().getContentAsString();
-    return new ObjectMapper().readValue(json, new TypeReference<List<Account>>(){});
+  private String getAuthHeader() {
+    String token = JWT.create()
+        .withSubject(username)
+        .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+        .sign(HMAC512(secret.getBytes()));
+    return TOKEN_PREFIX + token;
   }
 
 }

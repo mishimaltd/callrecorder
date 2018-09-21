@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -44,13 +46,20 @@ public class TwilioRestControllerIntegrationTest {
   @Autowired
   private AccountRepository accountRepository;
 
+  private PasswordEncoder encoder = new BCryptPasswordEncoder();
+
   private Account account;
 
   @Before
   public void setup() {
     Optional<Account> result = accountRepository.findByPhoneNumbers(accountPhoneNumber);
     if(!result.isPresent()) {
-      account = Account.builder().username(username).phoneNumbers(Collections.singletonList(accountPhoneNumber)).build();
+      account = Account.builder()
+          .username(username)
+          .password(encoder.encode(password))
+          .roles(Collections.singletonList("ROLE_TWILIO"))
+          .phoneNumbers(Collections.singletonList(accountPhoneNumber))
+          .build();
       accountRepository.save(account);
     }
   }

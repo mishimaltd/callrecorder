@@ -89,6 +89,8 @@ public class AccountServiceImpl implements AccountService {
     return Account.builder()
         .username(request.getUsername())
         .password(bCryptPasswordEncoder.encode(request.getPassword()))
+        .roles(Collections.singletonList("ROLE_USER"))
+        .phoneNumbers(Collections.singletonList(request.getPhoneNumber()))
         .stripeId(stripeCustomerId)
         .build();
   }

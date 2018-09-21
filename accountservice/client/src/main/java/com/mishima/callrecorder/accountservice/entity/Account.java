@@ -1,5 +1,6 @@
 package com.mishima.callrecorder.accountservice.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class Account {
   @Indexed(unique = true)
   private String username;
   private String password;
+  private List<String> roles;
   private List<String> phoneNumbers;
   private String stripeId;
 
@@ -34,6 +36,7 @@ public class Account {
 
     private String username;
     private String password;
+    private List<String> roles = new ArrayList<>();
     private List<String> phoneNumbers;
     private String stripeId;
 
@@ -44,6 +47,11 @@ public class Account {
 
     public Builder password(String password) {
       this.password = password;
+      return this;
+    }
+
+    public Builder roles(List<String> roles) {
+      this.roles = roles;
       return this;
     }
 
@@ -61,6 +69,7 @@ public class Account {
       Account account = new Account();
       account.setUsername(username);
       account.setPassword(password);
+      account.setRoles(roles);
       account.setPhoneNumbers(phoneNumbers);
       account.setStripeId(stripeId);
       return account;

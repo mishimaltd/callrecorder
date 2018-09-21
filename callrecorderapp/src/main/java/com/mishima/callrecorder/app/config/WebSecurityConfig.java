@@ -1,5 +1,10 @@
 package com.mishima.callrecorder.app.config;
 
+import static com.mishima.callrecorder.app.config.SecurityConstants.SIGN_UP_URL;
+
+import com.mishima.callrecorder.app.filter.JWTAuthenticationFilter;
+import com.mishima.callrecorder.app.filter.JWTAuthorizationFilter;
+import com.mishima.callrecorder.app.security.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +15,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -19,30 +25,34 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableGlobalMethodSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-  @Value("${twilio.username}")
-  private String username;
+  @Value("${secret.key}")
+  private String secret;
 
-  @Value("${twilio.password}")
-  private String password;
+  @Autowired
+  private UserDetailsServiceImpl userDetailsService;
+
+  private PasswordEncoder encoder = new BCryptPasswordEncoder();
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http.csrf().disable().authorizeRequests()
-        .antMatchers("/", "/home", "/favicon.ico", "/static/**", "/api/twilio/**").permitAll()
-        .antMatchers("/api/**").permitAll()
+        .antMatchers("/", "/favicon.ico", "/public/*", "/api/twilio/**", SIGN_UP_URL).permitAll()
         .anyRequest().authenticated()
         .and()
-        .formLogin().loginPage("/login").permitAll()
+        .formLogin().loginPage("/public/login").permitAll()
         .and()
         .logout().logoutSuccessUrl("/").permitAll()
+        .and()
+        .addFilter(new JWTAuthenticationFilter(authenticationManager(), secret))
+        .addFilter(new JWTAuthorizationFilter(authenticationManager(), secret))
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
         .rememberMe();
   }
 
   @Autowired
   public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-    auth.inMemoryAuthentication()
-        .withUser(username).password(passwordEncoder().encode(password)).authorities("ROLE_TWILIO");
+    auth.userDetailsService(userDetailsService).passwordEncoder(encoder);
   }
 
   @Bean

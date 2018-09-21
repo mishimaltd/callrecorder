@@ -162,7 +162,7 @@ public class CommandActor extends AbstractActor {
   }
 
   private String generatePayload(String s3FileKey) {
-    String preSignedUrl = s3Service.getPresignedUrl(s3FileKey, Date.from(LocalDateTime.now().plusMonths(1).atZone(
+    String preSignedUrl = s3Service.getPresignedUrl(s3FileKey, Date.from(LocalDateTime.now().plusDays(7).atZone(
         ZoneId.systemDefault()).toInstant()));
     String shortenedUrl = tinyUrlService.shorten(preSignedUrl);
     return "Thanks for trying out our service! Click the link below to access your recording:\n\n" + shortenedUrl;
