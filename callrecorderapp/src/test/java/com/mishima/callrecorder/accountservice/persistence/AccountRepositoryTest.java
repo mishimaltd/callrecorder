@@ -7,15 +7,19 @@ import static org.junit.Assert.assertFalse;
 import com.mishima.callrecorder.accountservice.entity.Account;
 import com.mishima.callrecorder.app.Application;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
@@ -60,6 +64,15 @@ public class AccountRepositoryTest {
       assertTrue(saved.isPresent());
       assertEquals(account.getId(), saved.get().getId());
     }
+  }
+
+  @Test
+  @Ignore
+  public void testCreateTwilioAccount() {
+    PasswordEncoder encoder = new BCryptPasswordEncoder();
+    String password = encoder.encode("pmmcha0s");
+    Account account = Account.builder().username("mishimaltd@gmail.com").password(password).phoneNumbers(Collections.singletonList("+19195927481")).roles(Collections.singletonList("ROLE_USER")).build();
+    accountRepository.save(account);
   }
 
   @Test

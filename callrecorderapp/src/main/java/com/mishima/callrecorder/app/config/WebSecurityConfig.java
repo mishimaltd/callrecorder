@@ -18,8 +18,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 
-@Order(2)
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity
@@ -29,6 +29,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   private String secret;
 
   @Autowired
+  private AuthenticationEntryPoint authenticationEntryPoint;
+
+  @Autowired
   private UserDetailsServiceImpl userDetailsService;
 
   private PasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -36,8 +39,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http.csrf().disable().authorizeRequests()
-        .antMatchers("/", "/favicon.ico", "/public/*", "/api/twilio/**", SIGN_UP_URL).permitAll()
+        .antMatchers("/", "/favicon.ico", "/public/*", SIGN_UP_URL).permitAll()
+        .and()
+        .antMatcher("/api/twilio/**").authorizeRequests().anyRequest().hasRole("TWILIO")
         .anyRequest().authenticated()
+        .and().httpBasic().authenticationEntryPoint(authenticationEntryPoint)
         .and()
         .formLogin().loginPage("/public/login").permitAll()
         .and()
