@@ -3,6 +3,7 @@ package com.mishima.callrecorder.accountservice.validator;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
+import com.mishima.callrecorder.accountservice.entity.Account;
 import com.mishima.callrecorder.accountservice.entity.CreateAccountRequest;
 import com.mishima.callrecorder.accountservice.persistence.AccountRepository;
 import com.mishima.callrecorder.domain.validation.EntityValidator;
@@ -10,7 +11,7 @@ import com.mishima.callrecorder.domain.validation.ValidationResult;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.routines.CreditCardValidator;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -51,7 +52,7 @@ public class CreateAccountRequestValidator implements EntityValidator<CreateAcco
         builder.fieldError("username", "Username is invalid");
       }
       if(accountRepository.findByUsernameIgnoreCase(username).isPresent()) {
-        builder.fieldError("username", "Username already exists");
+        builder.fieldError("username", "This username already exists, please select another username");
       }
     }
 
@@ -76,6 +77,11 @@ public class CreateAccountRequestValidator implements EntityValidator<CreateAcco
         PhoneNumber usNumberProto = phoneNumberUtil.parse(phoneNumber, "US");
         if(!phoneNumberUtil.isValidNumberForRegion(usNumberProto, "US")) {
           builder.fieldError("phoneNumber", "Phone number is invalid");
+        } else {
+          Optional<Account> result = accountRepository.findByPhoneNumbers(phoneNumber);
+          if( result.isPresent()) {
+            builder.fieldError("phoneNumber", "This phone number is already registered to an account");
+          }
         }
       } catch(NumberParseException ex) {
         builder.fieldError("phoneNumber", "Phone number is invalid");

@@ -33,7 +33,7 @@ public class CreateAccountRequestValidatorTest {
   private AccountRepository accountRepository;
 
   private String username = "test.user@email.com";
-  private List<String> phoneNumbers = Arrays.asList("11223344", "22334455");
+  private List<String> phoneNumbers = Arrays.asList("11223344", "+19195927763");
 
   private Account account;
 
@@ -79,7 +79,7 @@ public class CreateAccountRequestValidatorTest {
     CreateAccountRequest request = CreateAccountRequest.builder().username(username).build();
     ValidationResult result = validator.validate(request);
     assertTrue(result.getFieldErrors().containsKey("username"));
-    assertTrue(result.getFieldErrors().get("username").contains("Username already exists"));
+    assertTrue(result.getFieldErrors().get("username").contains("This username already exists, please select another username"));
   }
 
   @Test
@@ -126,6 +126,15 @@ public class CreateAccountRequestValidatorTest {
     ValidationResult result = validator.validate(request);
     assertFalse(result.getFieldErrors().containsKey("phoneNumber"));
   }
+
+  @Test
+  public void givenExistingPhoneNumberThenExpectError() {
+    CreateAccountRequest request = CreateAccountRequest.builder().phoneNumber("+19195927763").build();
+    ValidationResult result = validator.validate(request);
+    assertTrue(result.getFieldErrors().containsKey("phoneNumber"));
+    assertTrue(result.getFieldErrors().get("phoneNumber").contains("This phone number is already registered to an account"));
+  }
+
 
   @Test
   public void givenInvalidCardNumberThenExpectError() {

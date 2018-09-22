@@ -89,10 +89,12 @@ public class AccountRestController {
     Map<String,Object> model = new HashMap<>();
     CreateAccountResponse response = accountService.createAccount(request);
     if( response.isSuccess()) {
+      log.info("Account registered successfully!");
       model.put("success", true);
       model.put("account", response.getAccount());
       return response(model, HttpStatus.OK);
     } else {
+      log.info("Account not registered! -> {}", response);
       model.put("success", false);
       model.put("fieldErrors", response.getFieldErrors());
       model.put("globalErrors", response.getGlobalErrors());
