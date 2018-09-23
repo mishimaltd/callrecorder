@@ -19,6 +19,7 @@
   <link href="//s3.amazonaws.com/callrecorder-static/vendor/simple-line-icons/css/simple-line-icons.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic|Arvo" rel="stylesheet" type="text/css">
 
+
   <!-- Custom styles for this template -->
   <link href="//s3.amazonaws.com/callrecorder-static/css/landing-page.min.css" rel="stylesheet">
 
@@ -30,7 +31,6 @@
       gtag('js', new Date());
       gtag('config', 'UA-125423284-1');
     </script>
-
 </head>
 
 <body>
@@ -55,43 +55,86 @@
   </div>
 </nav>
 
-<div class="container login-container">
-  <div class="card card-container bg-light">
-    <img id="profile-img" class="profile-img-card" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"/>
-    <p id="profile-name" class="profile-name-card"></p>
-    <div th:if="${param.error}">
-      <div class="text-danger text-center">Invalid username/password</div>
+<!-- Registration Form -->
+<div class="container register-container">
+  <div class="card register-container bg-light">
+    <div class="form-header">
+      <p>Register Account</p>
     </div>
-    <form method="POST" action="/login">
+    <form id="registerForm" method="post" action="/api/accountservice/registerAccount">
       <div class="form-row">
-        <div class="form-group col-md-12">
+        <div class="form-group col-md-8">
           <div class="form-label-group">
-            <input type="email" class="form-control" id="username" placeholder="Email Address" required autofocus>
-            <label for="username">Email address</label>
+            <input type="text" class="form-control" id="username" name="username" tabindex="1" placeholder="Email Address" data-container="body" data-toggle="popover" data-placement="left" data-content="" required autofocus>
+            <label for="username">Email Address</label>
           </div>
         </div>
       </div>
+
       <div class="form-row">
-        <div class="form-group col-md-12">
+        <div class="form-group col-md-8">
           <div class="form-label-group">
-            <input type="password" class="form-control" id="password" placeholder="password" required>
+            <input type="password" class="form-control" id="password" name="password" tabindex="2" placeholder="Password" data-container="body" data-placement="left" data-content="" required>
             <label for="password">Password</label>
           </div>
         </div>
+        <div class="form-group col-md-4">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="showPassword" name="showPassword" onclick="passwordVisibility()">
+            <label class="form-check-label register-label" for="showPassword">Show Password</label>
+          </div>
+        </div>
       </div>
+
+      <div class="form-sub-header">
+        <p>Contact/Payment Details</p>
+      </div>
+
       <div class="form-row">
-        <div class="form-group col-md-12">
-          <label><input type="checkbox" value="remember-me"> Remember me</label>
+        <div class="form-group col-md-8">
+          <div class="form-label-group">
+            <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" tabindex="3" placeholder="Primary Phone Number" data-container="body" data-toggle="popover" data-placement="left" data-content="" required autofocus>
+            <label for="phoneNumber">Primary Phone Number</label>
+            <div class="input-instructions">(We use this to identify you when you call us)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-10">
+          <div class="form-label-group">
+            <input type="text" class="form-control" id="cardNumber" name="cardNumber" tabindex="4" placeholder="Credit Card Number" data-container="body" data-toggle="popover" data-placement="left" data-content="" required>
+            <label for="cardNumber">Credit Card Number</label>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div id="cardImage" class="credit-card-icon">
+          </div>
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group col-md-12">
-          <button class="btn btn-sm btn-success btn-block" type="submit">Sign in</button>
+        <div class="form-group col-md-4">
+          <div class="form-label-group">
+            <input type="text" class="form-control" id="cardExpiry" name="cardExpiry" tabindex="5" placeholder="Expiry" data-container="body" data-toggle="popover" data-placement="left" data-content="" required>
+            <label for="cardExpiry">Expiry (MM/YY)</label>
+          </div>
+        </div>
+        <div class="form-group col-md-4">
+          <div class="form-label-group">
+            <input type="text" class="form-control" id="cardCvc" name="cardCvc" placeholder="CVC" tabindex="6" data-container="body" data-toggle="popover" data-placement="right" data-content="" required>
+            <label for="cardCvc">CVC</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-12 terms-of-use">
+          <input class="form-check-input" type="checkbox" id="inputTerms" name="inputTerms" tabindex="7" data-container="body" data-toggle="popover" data-placement="left" data-content="">
+          <span class="form-check-label register-label">I Agree to the <a onclick="termsOfUse()">Terms of Use</a></span>
         </div>
       </div>
       <div class="row">
-        <div class="col-md-12">
-          <a th:href="@{/public/forgot}">Forgot password?</a>
+        <div class="col-md-12 text-center create-account">
+          <input class="btn btn-success" type="submit" tabindex="8" value="Create Account">
         </div>
       </div>
     </form>
@@ -146,8 +189,13 @@
 </footer>
 
 <!-- Bootstrap core JavaScript -->
-<script src="vendor/jquery/jquery.min.js"></script>
-<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/jquery/jquery.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/jquery/jquery.validate.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/jquery/additional-methods.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/cleave/cleave.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/cleave/cleave-phone.us.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/js/register.js"></script>
 
 </body>
 </html>

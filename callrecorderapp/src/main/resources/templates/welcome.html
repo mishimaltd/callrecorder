@@ -1,6 +1,7 @@
-<!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:secu="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+
 <head>
 
   <meta charset="utf-8">
@@ -44,12 +45,20 @@
     </div>
     <ul class="list-inline mb-2">
       <li class="list-inline-item"><a class="text-white" th:href="@{/public/services}">Our Service</a></li>
-      <li class="list-inline-item"><span class="text-white">|</span></li>
-      <li secu:authentication="authenticated" class="list-inline-item"><a class="text-white" th:href="@{/private/account}">My Account</a></li>
-      <li secu:authentication="anonymous" class="list-inline-item"><a class="text-white" th:href="@{/public/register}">Register</a></li>
+      <li class="list-inline-item"><span class="text-white">|</li>
+      <div sec:authorize=”isAuthenticated()”>
+        <li class="list-inline-item"><a class="text-white" th:href="@{/private/account}">My Account</a></li>
+      </div>
+      <div sec:authorize=”!isAuthenticated()”>
+        <li class="list-inline-item"><a class="text-white" th:href="@{/public/register}">Register</a></li>
+      </div>
       <li class="list-inline-item">&nbsp;&nbsp;</li>
-      <li secu:authentication="anonymous" class="list-inline-item"><a class="btn btn-sm btn-primary" th:href="@{/public/login}">Sign In</a></li>
-      <li secu:authentication="authenticated" class="list-inline-item"><a class="btn btn-sm btn-primary" th:href="@{/logout}">Logout</a></li>
+      <div sec:authorize=”!isAuthenticated()”>
+        <li class="list-inline-item"><a class="btn btn-sm btn-primary" th:href="@{/public/login}">Sign In</a></li>
+      </div>
+      <div sec:authorize=”isAuthenticated()”>
+        <li class="list-inline-item"><a class="btn btn-sm btn-primary" th:href="@{/logout}">Logout</a></li>
+      </div>
     </ul>
   </div>
 </nav>
@@ -60,13 +69,12 @@
   <div class="container">
     <div class="row">
       <div class="col-xl-9 mx-auto">
-        <h1 class="mb-5">Effortlessly record your calls<br/>for only 20&#162; per minute!</h1>
+        <h1 class="mb-5">Thanks for registering!<br/>Ready to make your first call?</h1>
       </div>
       <div class="col-md-10 col-lg-8 col-xl-7 mx-auto">
-        <a class="btn btn-lg btn-primary" th:href="@{/public/trial}">Try it now for free!</a>
+        <a class="btn btn-lg btn-primary" href="844 565 4545">Call our toll-free number</a>
       </div>
     </div>
-  </div>
 </header>
 
 <section class="toll-free">
@@ -145,7 +153,7 @@
   <div class="container">
     <div class="row">
       <div class="col-xl-9 mx-auto">
-        <h3 class="mb-4">Ready to get started?</h3>
+        <h3 class="mb-4">Ready to get started?</h2>
       </div>
       <div class="col-md-10 col-lg-8 col-xl-7 mx-auto">
         <a class="btn btn-md btn-primary" href="/register.html">Register now!</a>

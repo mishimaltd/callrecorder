@@ -4,6 +4,7 @@ import static com.mishima.callrecorder.app.config.SecurityConstants.SIGN_UP_URL;
 
 import com.mishima.callrecorder.app.filter.JWTAuthenticationFilter;
 import com.mishima.callrecorder.app.filter.JWTAuthorizationFilter;
+import com.mishima.callrecorder.app.security.AuthenticationCheck;
 import com.mishima.callrecorder.app.security.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,9 +46,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .anyRequest().authenticated()
         .and().httpBasic().authenticationEntryPoint(authenticationEntryPoint)
         .and()
-        .formLogin().loginPage("/public/login").permitAll()
+        .formLogin().loginPage("/public/login").successForwardUrl("/")
         .and()
-        .logout().logoutSuccessUrl("/").permitAll()
+        .logout().logoutSuccessUrl("/")
         .and()
         .addFilter(new JWTAuthenticationFilter(authenticationManager(), secret))
         .addFilter(new JWTAuthorizationFilter(authenticationManager(), secret))
@@ -65,5 +66,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
+
+  @Bean
+  public AuthenticationCheck authenticationCheck() {
+    return new AuthenticationCheck();
+  }
+
 
 }
