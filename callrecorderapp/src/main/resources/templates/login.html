@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:secu="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 
 <head>
 
@@ -46,11 +46,11 @@
     <ul class="list-inline mb-2">
       <li class="list-inline-item"><a class="text-white" th:href="@{/public/services}">Our Service</a></li>
       <li class="list-inline-item"><span class="text-white">|</span></li>
-      <li secu:authentication="authenticated" class="list-inline-item"><a class="text-white" th:href="@{/private/account}">My Account</a></li>
-      <li secu:authentication="anonymous" class="list-inline-item"><a class="text-white" th:href="@{/public/register}">Register</a></li>
+      <li sec:authorize="isAuthenticated()" class="list-inline-item"><a class="text-white" th:href="@{/private/account}">My Account</a></li>
+      <li sec:authorize="isAnonymous()" class="list-inline-item"><a class="text-white" th:href="@{/public/register}">Register</a></li>
       <li class="list-inline-item">&nbsp;&nbsp;</li>
-      <li secu:authentication="anonymous" class="list-inline-item"><a class="btn btn-sm btn-primary" th:href="@{/public/login}">Sign In</a></li>
-      <li secu:authentication="authenticated" class="list-inline-item"><a class="btn btn-sm btn-primary" th:href="@{/logout}">Logout</a></li>
+      <li sec:authorize="isAnonymous()" class="list-inline-item"><a class="btn btn-sm btn-primary" th:href="@{/public/login}">Sign In</a></li>
+      <li sec:authorize="isAuthenticated()" class="list-inline-item"><a class="btn btn-sm btn-primary" th:href="@{/public/logout}">Logout</a></li>
     </ul>
   </div>
 </nav>
@@ -59,14 +59,12 @@
   <div class="card card-container bg-light">
     <img id="profile-img" class="profile-img-card" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"/>
     <p id="profile-name" class="profile-name-card"></p>
-    <div th:if="${param.error}">
-      <div class="text-danger text-center">Invalid username/password</div>
-    </div>
-    <form method="POST" action="/login">
+    <div id="loginError" class="text-danger text-center hidden">Invalid username/password</div>
+    <form id="loginForm" method="post" action="/login">
       <div class="form-row">
         <div class="form-group col-md-12">
           <div class="form-label-group">
-            <input type="email" class="form-control" id="username" placeholder="Email Address" required autofocus>
+            <input type="text" class="form-control" id="username" name="username" placeholder="Email Address" tabindex="1" data-container="body" data-toggle="popover" data-placement="left" data-content="" required autofocus>
             <label for="username">Email address</label>
           </div>
         </div>
@@ -74,24 +72,24 @@
       <div class="form-row">
         <div class="form-group col-md-12">
           <div class="form-label-group">
-            <input type="password" class="form-control" id="password" placeholder="password" required>
+            <input type="password" class="form-control" id="password" name="password" placeholder="password" tabindex="2" data-container="body" data-placement="left" data-content="" required>
             <label for="password">Password</label>
           </div>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group col-md-12">
-          <label><input type="checkbox" value="remember-me"> Remember me</label>
+          <label><input type="checkbox" value="remember-me" id="remember-me" name="remember-me"> Remember me</label>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group col-md-12">
-          <button class="btn btn-sm btn-success btn-block" type="submit">Sign in</button>
+          <input class="btn btn-success" type="submit" tabindex="3" value="Sign in">
         </div>
       </div>
       <div class="row">
         <div class="col-md-12">
-          <a th:href="@{/public/forgot}">Forgot password?</a>
+          <a th:href="@{/public/forgot}" tabindex="4">Forgot password?</a>
         </div>
       </div>
     </form>
@@ -146,8 +144,11 @@
 </footer>
 
 <!-- Bootstrap core JavaScript -->
-<script src="vendor/jquery/jquery.min.js"></script>
-<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/jquery/jquery.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/jquery/jquery.validate.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/jquery/additional-methods.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/js/login.js"></script>
 
 </body>
 </html>

@@ -2,7 +2,6 @@ package com.mishima.callrecorder.app.security;
 
 import com.mishima.callrecorder.accountservice.entity.Account;
 import com.mishima.callrecorder.accountservice.persistence.AccountRepository;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;

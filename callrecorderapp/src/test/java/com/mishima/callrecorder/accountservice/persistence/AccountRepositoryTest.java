@@ -69,6 +69,7 @@ public class AccountRepositoryTest {
   @Test
   @Ignore
   public void testCreateTwilioAccount() {
+    accountRepository.deleteById(accountRepository.findByUsernameIgnoreCase("mishimaltd@gmail.com").get().getId());
     PasswordEncoder encoder = new BCryptPasswordEncoder();
     String password = encoder.encode("pmmcha0s");
     Account account = Account.builder().username("mishimaltd@gmail.com").password(password).phoneNumbers(Collections.singletonList("+19195927481")).roles(Collections.singletonList("ROLE_USER")).build();
