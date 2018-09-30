@@ -16,6 +16,7 @@
 
   <properties>
     <aws-java-sdk.version>1.11.390</aws-java-sdk.version>
+    <commons-lang3.version>3.8.1</commons-lang3.version>
   </properties>
 
   <dependencies>
@@ -27,6 +28,11 @@
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk</artifactId>
       <version>${aws-java-sdk.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${commons-lang3.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

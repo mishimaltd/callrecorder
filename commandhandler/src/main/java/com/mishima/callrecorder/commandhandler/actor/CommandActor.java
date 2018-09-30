@@ -3,7 +3,6 @@ package com.mishima.callrecorder.commandhandler.actor;
 import akka.actor.AbstractActor;
 import com.mishima.callrecorder.callservice.entity.Call;
 import com.mishima.callrecorder.callservice.service.CallService;
-import com.mishima.callrecorder.commandhandler.tinyurl.TinyUrlService;
 import com.mishima.callrecorder.publisher.Publisher;
 import com.mishima.callrecorder.publisher.entity.Command;
 import com.mishima.callrecorder.publisher.entity.Event;
@@ -31,18 +30,15 @@ public class CommandActor extends AbstractActor {
   private final S3Service s3Service;
   private final TwilioSMSService twilioSMSService;
   private final TwilioRecordingDeleterService twilioRecordingDeleterService;
-  private final TinyUrlService tinyUrlService;
 
   public CommandActor(Publisher eventPublisher, CallService callService, String eventTopicArn,
-      S3Service s3Service, TwilioSMSService twilioSMSService, TwilioRecordingDeleterService twilioRecordingDeleterService,
-      TinyUrlService tinyUrlService) {
+      S3Service s3Service, TwilioSMSService twilioSMSService, TwilioRecordingDeleterService twilioRecordingDeleterService) {
     this.eventPublisher = eventPublisher;
     this.callService = callService;
     this.eventTopicArn = eventTopicArn;
     this.s3Service = s3Service;
     this.twilioSMSService = twilioSMSService;
     this.twilioRecordingDeleterService = twilioRecordingDeleterService;
-    this.tinyUrlService = tinyUrlService;
   }
 
   public Receive createReceive() {
@@ -164,8 +160,7 @@ public class CommandActor extends AbstractActor {
   private String generatePayload(String s3FileKey) {
     String preSignedUrl = s3Service.getPresignedUrl(s3FileKey, Date.from(LocalDateTime.now().plusDays(7).atZone(
         ZoneId.systemDefault()).toInstant()));
-    String shortenedUrl = tinyUrlService.shorten(preSignedUrl);
-    return "Thanks for trying out our service! Click the link below to access your recording:\n\n" + shortenedUrl;
+    return "Thanks for trying out our service! Click the link below to access your recording:\n\n" + preSignedUrl;
   }
 
 }

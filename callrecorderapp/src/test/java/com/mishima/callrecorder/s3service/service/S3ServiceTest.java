@@ -24,7 +24,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class S3ServiceTest {
 
-  private S3Service s3Service = new S3Service(s3Client(), "callrecorder-bucket");
+  private S3Service s3Service = new S3Service(s3Client(), "callrecorder-bucket", "callrecorder-redirect");
 
   @Test
   public void testUploadAndDownloadFile() throws Exception {
@@ -37,15 +37,18 @@ public class S3ServiceTest {
     String downloaded = new String(content, StandardCharsets.UTF_8);
     assertEquals(text, downloaded);
 
-    // Generate pre-signed url
+  }
+
+  @Test
+  public void testGenerateSignedUrl() throws Exception {
+    String key = "48f544e0-1a19-4966-8735-aefabbdfea3e";
     Date date = Date.from(LocalDateTime.now().plusDays(7).atZone(ZoneId.systemDefault()).toInstant());
-    String preSignedUrl = s3Service.getPresignedUrl(fileKey, date);
+    String preSignedUrl = s3Service.getPresignedUrl(key, date);
     assertNotNull(preSignedUrl);
 
     // Confirm that it can be accessed
-    ResponseEntity<String> response = new RestTemplate().getForEntity(new URI(preSignedUrl), String.class);
-    assertEquals(response.getStatusCode(), HttpStatus.OK);
-    assertEquals(text, response.getBody());
+    ResponseEntity<byte[]> response = new RestTemplate().getForEntity(new URI(preSignedUrl), byte[].class);
+    assertEquals(HttpStatus.MOVED_PERMANENTLY, response.getStatusCode());
   }
 
 

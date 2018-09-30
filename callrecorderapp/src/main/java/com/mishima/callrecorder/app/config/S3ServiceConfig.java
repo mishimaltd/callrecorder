@@ -21,9 +21,12 @@ public class S3ServiceConfig {
   @Value("${bucket.name}")
   private String bucket;
 
+  @Value("${redirect.bucket.name}")
+  private String redirectBucket;
+
   @Bean
   public S3Service s3Service() {
-    return new S3Service(s3Client, bucket);
+    return new S3Service(s3Client, bucket, redirectBucket);
   }
 
 }
