@@ -60,15 +60,14 @@ public class TwilioRestController {
     log.info("Received call sid {} from number {}", callSid, from);
     VoiceResponse response;
     // Check there is an account associated with the inbound number
-    Optional<Account> result = accountService.findByPhoneNumbers(from);
-    if(!result.isPresent()) {
+    Optional<String> accountId = getAccountId(trial, from);
+    if(!accountId.isPresent()) {
       log.info("No account found for incoming call from {}", from);
       response = new VoiceResponse.Builder().say(noAccount()).build();
     } else {
       // Store details of this call in the session
-      Account account = result.get();
       request.getSession().setAttribute("CallSid", callSid);
-      request.getSession().setAttribute("AccountId", account.getId());
+      request.getSession().setAttribute("AccountId", accountId.get());
       request.getSession().setAttribute("Trial", trial);
 
       // Publish call initiated publisher
@@ -76,7 +75,7 @@ public class TwilioRestController {
       eventPublisher.publish(eventTopicArn, Event.builder()
           .eventType(EventType.CallInitiated)
           .callSid(callSid)
-          .attribute("AccountId", account.getId())
+          .attribute("AccountId", accountId.get())
           .attribute("From", from)
           .attribute("Trial", trial)
           .build());
@@ -155,8 +154,8 @@ public class TwilioRestController {
           // Get trial option from session
           boolean trial = (Boolean)request.getSession().getAttribute("Trial");
           if( trial) {
-            Say say = say("Connecting your trial call, this call will automatically disconnect after 2 minutes.");
-            Dial dial = new Dial.Builder().callerId(from).record(Dial.Record.RECORD_FROM_ANSWER).timeout(30).timeLimit(120)
+            Say say = say("Connecting your trial call, this call will automatically disconnect after 5 minutes.");
+            Dial dial = new Dial.Builder().callerId(from).record(Dial.Record.RECORD_FROM_ANSWER).timeout(30).timeLimit(300)
                 .recordingStatusCallback(baseUri + "/recording").recordingStatusCallbackMethod(HttpMethod.POST)
                 .number(new Number.Builder(number).build()).build();
             response = new VoiceResponse.Builder().say(say).dial(dial).build();
@@ -206,6 +205,12 @@ public class TwilioRestController {
           .build());
     }
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
+  private Optional<String> getAccountId(boolean trial, String from) {
+    if(trial) return Optional.of("trial");
+    Optional<Account> result = accountService.findByPhoneNumbers(from);
+    return result.map(Account::getId);
   }
 
   private ResponseEntity<byte[]> buildResponseEntity(String xml) {

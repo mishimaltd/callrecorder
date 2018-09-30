@@ -3,6 +3,7 @@ package com.mishima.callrecorder.eventhandler.actor;
 import akka.actor.AbstractActor;
 import com.mishima.callrecorder.callservice.entity.Call;
 import com.mishima.callrecorder.callservice.service.CallService;
+import com.mishima.callrecorder.eventhandler.service.RecordingCostService;
 import com.mishima.callrecorder.publisher.Publisher;
 import com.mishima.callrecorder.publisher.entity.Command;
 import com.mishima.callrecorder.publisher.entity.Command.CommandType;
@@ -16,6 +17,8 @@ public class EventActor extends AbstractActor {
   private final CallService callService;
   private final Publisher publisher;
   private final String commandTopicArn;
+
+  private final RecordingCostService recordingCostService = new RecordingCostService();
 
   public EventActor(CallService callService, Publisher publisher, String commandTopicArn) {
     this.callService = callService;
@@ -97,6 +100,7 @@ public class EventActor extends AbstractActor {
       call.setStatus("RecordingComplete");
       call.setRecordingUrl(recordingUrl);
       call.setRecordingDuration(recordingDuration);
+      call.setCostInCents(recordingCostService.calculateCost(recordingDuration));
       call.setLastUpdated(System.currentTimeMillis());
       callService.save(call);
       log.info("Marked call sid {} as recording complete", callSid);
@@ -168,6 +172,5 @@ public class EventActor extends AbstractActor {
       log.error("Error occurred marking error, could not find call by sid {}", callSid);
     }
   }
-
 
 }
