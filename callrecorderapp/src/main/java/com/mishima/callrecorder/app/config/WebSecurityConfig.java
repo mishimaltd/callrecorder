@@ -41,7 +41,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
           .successHandler(customAuthenticationHandler())
           .failureHandler(customAuthenticationHandler())
         .and()
-        .logout().logoutUrl("/public/logout").logoutSuccessUrl("/")
+        .logout().logoutUrl("/public/logout").logoutSuccessUrl("/public/login")
         .and()
         .rememberMe();
   }
