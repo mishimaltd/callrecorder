@@ -10,13 +10,16 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.util.IOUtils;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 public class S3ServiceTest {
@@ -38,6 +41,11 @@ public class S3ServiceTest {
     Date date = Date.from(LocalDateTime.now().plusDays(7).atZone(ZoneId.systemDefault()).toInstant());
     String preSignedUrl = s3Service.getPresignedUrl(fileKey, date);
     assertNotNull(preSignedUrl);
+
+    // Confirm that it can be accessed
+    ResponseEntity<String> response = new RestTemplate().getForEntity(new URI(preSignedUrl), String.class);
+    assertEquals(response.getStatusCode(), HttpStatus.OK);
+    assertEquals(text, response.getBody());
   }
 
 
