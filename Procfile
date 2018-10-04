@@ -1,1 +1,1 @@
-web: java -javaagent:./newrelic/newrelic.jar -Dserver.port=$PORT $JAVA_OPTS -jar callrecorderapp/target/callrecorder-app-1.0.0-SNAPSHOT.jar
+web: java -Dserver.port=$PORT $JAVA_OPTS -jar callrecorderapp/target/callrecorder-app-1.0.0-SNAPSHOT.jar
