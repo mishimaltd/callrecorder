@@ -176,16 +176,7 @@ public class AccountRestController {
   }
 
   private String generateResetLink(String username, String uuid) {
-    String url = baseUri + "/accountservice/resetPassword?username=" + username + "&hash=" + uuid;
-    try {
-      String encoded = URLEncoder.encode(url, "utf-8");
-      log.info("Generated password reset link -> {}", encoded);
-      return encoded;
-    } catch( UnsupportedEncodingException ex ) {
-      log.error("Encoding exception -> {}", ex);
-      return null;
-    }
-
+    return baseUri + "/accountservice/resetPassword?username=" + username + "&token=" + uuid;
   }
 
 }
