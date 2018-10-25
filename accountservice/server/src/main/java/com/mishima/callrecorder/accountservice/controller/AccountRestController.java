@@ -4,10 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mishima.callrecorder.accountservice.entity.Account;
 import com.mishima.callrecorder.accountservice.entity.CreateAccountRequest;
 import com.mishima.callrecorder.accountservice.entity.CreateAccountResponse;
+import com.mishima.callrecorder.accountservice.entity.ResetPasswordRequest;
 import com.mishima.callrecorder.accountservice.service.AccountService;
 import com.mishima.callrecorder.emailservice.EmailService;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +40,7 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/api/accountservice")
 public class AccountRestController {
 
-  public static final long ONE_DAY = 1000 * 60 * 60 * 24;
+  private static final long ONE_DAY = 1000 * 60 * 60 * 24;
 
   @Autowired
   private AccountService accountService;
@@ -131,7 +130,7 @@ public class AccountRestController {
   }
 
   @GetMapping(value = "/newPassword")
-  public ModelAndView newPassword(@RequestParam("username") String username, @RequestParam("token") String token, HttpServletRequest request) throws Exception {
+  public ModelAndView newPassword(@RequestParam("username") String username, @RequestParam("token") String token, HttpServletRequest request) {
     log.info("Received new password request for user {}", username);
     Optional<Account> result = accountService.findByUsername(username);
     String errorMessage = null;
@@ -164,8 +163,9 @@ public class AccountRestController {
 
   @ResponseBody
   @PostMapping(value = "/resetPassword", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<byte[]> resetPassword(@RequestParam("password") String password, HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ResponseEntity<byte[]> resetPassword(@RequestBody ResetPasswordRequest resetRequest, HttpServletRequest request, HttpServletResponse response) throws Exception {
     String username = (String)request.getSession().getAttribute("reset_username");
+    String password = resetRequest.getPassword();
     boolean success = accountService.resetPassword(username, password);
     Map<String,Object> model = new HashMap<>();
     model.put("success", success);
