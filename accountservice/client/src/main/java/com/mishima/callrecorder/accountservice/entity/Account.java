@@ -22,6 +22,8 @@ public class Account {
   @Indexed(unique = true)
   private String username;
   private String password;
+  private String resetPasswordKey;
+  private long passwordResetRequestTime;
   private List<String> roles;
   private List<String> phoneNumbers;
   private String stripeId;
@@ -36,6 +38,8 @@ public class Account {
 
     private String username;
     private String password;
+    private String resetPasswordKey;
+    private long passwordResetRequestTime;
     private List<String> roles = new ArrayList<>();
     private List<String> phoneNumbers;
     private String stripeId;
@@ -47,6 +51,16 @@ public class Account {
 
     public Builder password(String password) {
       this.password = password;
+      return this;
+    }
+
+    public Builder resetPasswordKey(String resetPasswordKey) {
+      this.resetPasswordKey = resetPasswordKey;
+      return this;
+    }
+
+    public Builder passwordResetRequestTime(long passwordResetRequestTime) {
+      this.passwordResetRequestTime = passwordResetRequestTime;
       return this;
     }
 
@@ -69,6 +83,8 @@ public class Account {
       Account account = new Account();
       account.setUsername(username);
       account.setPassword(password);
+      account.setResetPasswordKey(resetPasswordKey);
+      account.setPasswordResetRequestTime(passwordResetRequestTime);
       account.setRoles(roles);
       account.setPhoneNumbers(phoneNumbers);
       account.setStripeId(stripeId);

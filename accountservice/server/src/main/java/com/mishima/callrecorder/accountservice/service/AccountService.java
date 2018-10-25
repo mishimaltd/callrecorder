@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface AccountService {
 
+  Account save(Account account);
+
   Iterable<Account> findAll();
 
   Optional<Account> findById(String id);

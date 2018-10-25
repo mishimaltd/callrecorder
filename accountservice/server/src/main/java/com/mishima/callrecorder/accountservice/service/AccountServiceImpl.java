@@ -7,6 +7,7 @@ import com.mishima.callrecorder.accountservice.persistence.AccountRepository;
 import com.mishima.callrecorder.domain.validation.EntityValidator;
 import com.mishima.callrecorder.domain.validation.ValidationResult;
 import com.mishima.callrecorder.stripe.client.StripeClient;
+import com.mishima.callrecorder.stripe.client.response.CreateCustomerResponse;
 import com.mishima.callrecorder.stripe.client.response.CreateTokenResponse;
 import com.mishima.callrecorder.stripe.entity.CreditCard;
 import java.util.Collections;
@@ -28,6 +29,11 @@ public class AccountServiceImpl implements AccountService {
     this.stripeClient = stripeClient;
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     this.validator = validator;
+  }
+
+  @Override
+  public Account save(Account account) {
+    return accountRepository.save(account);
   }
 
   @Override
@@ -56,8 +62,14 @@ public class AccountServiceImpl implements AccountService {
     if(validationResult.isSuccess()) {
       CreateTokenResponse createTokenResponse = stripeClient.createToken(creditCard(request));
       if (createTokenResponse.isSuccess()) {
-        Account account = accountRepository.save(account(request, createTokenResponse.getToken().getId()));
-        return CreateAccountResponse.builder().success(true).account(account).build();
+        CreateCustomerResponse createCustomerResponse = stripeClient.createCustomer(request.getUsername(), createTokenResponse.getToken());
+        if(createCustomerResponse.isSuccess()) {
+          Account account = accountRepository.save(account(request, createCustomerResponse.getCustomer().getId()));
+          return CreateAccountResponse.builder().success(true).account(account).build();
+        } else {
+          return CreateAccountResponse.builder().success(false).globalErrors(
+              Collections.singletonList(createCustomerResponse.getErrorMessage())).build();
+        }
       } else {
         return CreateAccountResponse.builder().success(false).globalErrors(
             Collections.singletonList(createTokenResponse.getErrorMessage())).build();
