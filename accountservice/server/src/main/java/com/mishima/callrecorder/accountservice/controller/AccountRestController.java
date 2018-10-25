@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +34,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/accountservice")
 public class AccountRestController {
+
+  public static final long ONE_DAY = 1000 * 60 * 60 * 24;
 
   @Autowired
   private AccountService accountService;
@@ -48,7 +52,7 @@ public class AccountRestController {
   @Autowired
   private EmailService emailService;
 
-  @Value("${callservice.uri}")
+  @Value("${accountservice.uri}")
   private String baseUri;
 
   private final ObjectMapper om = new ObjectMapper();
@@ -126,6 +130,52 @@ public class AccountRestController {
     return response(model, HttpStatus.OK);
   }
 
+  @GetMapping(value = "/newPassword")
+  public ModelAndView newPassword(@RequestParam("username") String username, @RequestParam("token") String token, HttpServletRequest request) throws Exception {
+    log.info("Received new password request for user {}", username);
+    Optional<Account> result = accountService.findByUsername(username);
+    String errorMessage = null;
+    boolean success = false;
+    if(result.isPresent()) {
+      Account account = result.get();
+      if(token.equals(account.getResetPasswordKey())) {
+        long now = System.currentTimeMillis();
+        if( now - account.getPasswordResetRequestTime() < ONE_DAY ) {
+          success = true;
+        } else {
+          errorMessage = "Password reset link has expired";
+        }
+      } else {
+        errorMessage = "Invalid token, unable to reset password";
+      }
+    } else {
+      errorMessage = "Invalid username, unable to reset password";
+    }
+    if(success) {
+      request.getSession().setAttribute("reset_username", username);
+      return new ModelAndView("reset");
+    } else {
+      log.error("Received error {}", errorMessage);
+      ModelAndView modelAndView = new ModelAndView("error");
+      modelAndView.addObject("errorMessage", errorMessage);
+      return modelAndView;
+    }
+  }
+
+  @ResponseBody
+  @PostMapping(value = "/resetPassword", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<byte[]> resetPassword(@RequestParam("password") String password, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    String username = (String)request.getSession().getAttribute("reset_username");
+    boolean success = accountService.resetPassword(username, password);
+    Map<String,Object> model = new HashMap<>();
+    model.put("success", success);
+    if(success) {
+      request.getSession().removeAttribute("reset_username");
+      authenticateUser(username);
+    }
+    return response(model, HttpStatus.OK);
+  }
+
   @ResponseBody
   @PostMapping(value="/registerAccount", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<byte[]> register(@RequestBody CreateAccountRequest request) throws Exception {
@@ -176,7 +226,7 @@ public class AccountRestController {
   }
 
   private String generateResetLink(String username, String uuid) {
-    return baseUri + "/accountservice/resetPassword?username=" + username + "&token=" + uuid;
+    return baseUri + "/newPassword?username=" + username + "&token=" + uuid;
   }
 
 }

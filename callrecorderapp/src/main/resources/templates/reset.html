@@ -1,0 +1,147 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=yes">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>MyDialBuddy | Effortless Call Recording</title>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <!-- Custom fonts for this template -->
+  <link href="//s3.amazonaws.com/callrecorder-static/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <link href="//s3.amazonaws.com/callrecorder-static/vendor/simple-line-icons/css/simple-line-icons.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic|Arvo" rel="stylesheet" type="text/css">
+
+
+  <!-- Custom styles for this template -->
+  <link href="//s3.amazonaws.com/callrecorder-static/css/landing-page.min.css" rel="stylesheet">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-125423284-1"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-125423284-1');
+    </script>
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-dark bg-dark static-top">
+  <div>
+    <a class="navbar-brand" href="/">
+      <div class="logo-title"><i class="icon-microphone m-auto text-white icon-logo"></i>MyDialBuddy</div>
+    </a>
+  </div>
+  <ul class="list-inline mt-1">
+    <li sec:authorize="isAuthenticated()" class="list-inline-item"><a class="text-white" th:href="@{/private/dashboard}">Dashboard</a></li>
+    <li sec:authorize="isAuthenticated()" class="list-inline-item"><span class="text-white">|</span></li>
+    <li sec:authorize="isAuthenticated()" class="list-inline-item"><a class="text-white" th:href="@{/private/profile}">My Profile</a></li>
+    <li sec:authorize="isAnonymous()" class="list-inline-item"><a class="text-white" th:href="@{/public/register}">Register</a></li>
+    <li class="list-inline-item">&nbsp;&nbsp;</li>
+    <li sec:authorize="isAnonymous()" class="list-inline-item"><a class="btn btn-sm btn-primary" th:href="@{/public/login}">Log In</a></li>
+    <li sec:authorize="isAuthenticated()" class="list-inline-item"><a class="btn btn-sm btn-primary" th:href="@{/public/logout}">Logout</a></li>
+  </ul>
+</nav>
+
+<!-- Password Reset Form -->
+<div class="container login-container">
+  <div class="card card-container bg-light form-signin">
+    <div class="login-header text-center bg-dark"><i class="icon-microphone m-auto text-white icon-logo"></i>Reset your password</div>
+    <div class="login-body">
+      <div id="resetError" class="text-danger text-center hidden">An error occurred, please try again</div>
+      <form id="resetForm" method="post" action="/api/accountservice/resetPassword">
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <div class="form-label-group">
+              <label for="password">Password</label>
+              <input type="password" class="form-control" id="password" name="password" tabindex="2">
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <div class="form-label-group">
+              <label for="password">Confirm password</label>
+              <input type="password" class="form-control" id="confirm_password" name="confirm_password" tabindex="3">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 text-center create-account">
+            <button class="btn btn-sm btn-success btn-block" tabindex="7" type="submit">Reset password</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer bg-light">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6 h-100 text-center text-lg-left my-auto">
+        <ul class="list-inline mb-2">
+          <li class="list-inline-item">
+            <a th:href="@{/public/services}">Our Service</a>
+          </li>
+          <li class="list-inline-item">|</li>
+          <li class="list-inline-item">
+            <a th:href="@{/public/contact}">Contact</a>
+          </li>
+          <li class="list-inline-item">|</li>
+          <li class="list-inline-item">
+            <a th:href="@{/public/terms}">Terms of Use</a>
+          </li>
+          <li class="list-inline-item">|</li>
+          <li class="list-inline-item">
+            <a th:href="@{/public/privacy}">Privacy Policy</a>
+          </li>
+        </ul>
+        <p class="text-muted small mb-4 mb-lg-0">&copy; Your Website 2018. All Rights Reserved.</p>
+      </div>
+      <div class="col-lg-6 h-100 text-center text-lg-right my-auto">
+        <ul class="list-inline mb-0">
+          <li class="list-inline-item mr-3">
+            <a href="#">
+              <i class="fa fa-facebook fa-2x fa-fw"></i>
+            </a>
+          </li>
+          <li class="list-inline-item mr-3">
+            <a href="#">
+              <i class="fa fa-twitter fa-2x fa-fw"></i>
+            </a>
+          </li>
+          <li class="list-inline-item">
+            <a href="#">
+              <i class="fa fa-instagram fa-2x fa-fw"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap core JavaScript -->
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/jquery/jquery.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/jquery/jquery.validate.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/jquery/additional-methods.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/cleave/cleave.min.js"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/cleave/cleave-phone.us.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="//s3.amazonaws.com/callrecorder-static/js/reset.js"></script>
+
+</body>
+</html>

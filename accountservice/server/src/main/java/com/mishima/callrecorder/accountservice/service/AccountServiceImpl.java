@@ -12,8 +12,10 @@ import com.mishima.callrecorder.stripe.client.response.CreateTokenResponse;
 import com.mishima.callrecorder.stripe.entity.CreditCard;
 import java.util.Collections;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+@Slf4j
 public class AccountServiceImpl implements AccountService {
 
   private final AccountRepository accountRepository;
@@ -85,6 +87,20 @@ public class AccountServiceImpl implements AccountService {
       Account account = result.get();
       stripeClient.deleteCustomerById(account.getStripeId());
       accountRepository.deleteById(account.getId());
+    }
+  }
+
+  @Override
+  public boolean resetPassword(String username, String newPassword) {
+    Optional<Account> result = findByUsername(username);
+    if( result.isPresent()) {
+      Account account = result.get();
+      account.setPassword(bCryptPasswordEncoder.encode(newPassword));
+      save(account);
+      return true;
+    } else {
+      log.error("Could not find account for username {}, will not reset password", username);
+      return false;
     }
   }
 

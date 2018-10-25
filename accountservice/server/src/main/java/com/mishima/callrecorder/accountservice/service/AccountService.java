@@ -22,4 +22,6 @@ public interface AccountService {
 
   void deleteAccountById(String id);
 
+  boolean resetPassword(String username, String newPassword);
+
 }

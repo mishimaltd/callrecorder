@@ -1,5 +1,8 @@
 package com.mishima.callrecorder.app.config;
 
+import static com.mishima.callrecorder.app.config.SecurityConstants.FORGOT_PASSWORD_URL;
+import static com.mishima.callrecorder.app.config.SecurityConstants.NEW_PASSWORD_URL;
+import static com.mishima.callrecorder.app.config.SecurityConstants.RESET_PASSWORD_URL;
 import static com.mishima.callrecorder.app.config.SecurityConstants.SIGN_UP_URL;
 
 import com.mishima.callrecorder.app.security.CustomAuthenticationHandler;
@@ -33,7 +36,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http.csrf().disable().authorizeRequests()
-        .antMatchers("/", "/favicon.ico", "/public/*", SIGN_UP_URL).permitAll()
+        .antMatchers("/", "/favicon.ico", "/public/*", SIGN_UP_URL, FORGOT_PASSWORD_URL, NEW_PASSWORD_URL, RESET_PASSWORD_URL).permitAll()
+        .antMatchers("/private/*", "/api/*").fullyAuthenticated()
         .and()
         .formLogin()
           .loginPage("/public/login")
