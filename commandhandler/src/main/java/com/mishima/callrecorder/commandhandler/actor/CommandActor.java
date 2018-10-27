@@ -128,7 +128,7 @@ public class CommandActor extends AbstractActor {
         String emailAddress = accountResult.get().getUsername();
         log.info("Sending recording link email to user {}", emailAddress);
         String recordingLink = generatePresignedLink(call.getS3recordingUrl());
-        emailService.sendRecordingLink(emailAddress, recordingLink);
+        emailService.sendRecordingLink(emailAddress, call, recordingLink);
         eventPublisher.publish(eventTopicArn, Event.builder()
             .eventType(EventType.EmailNotificationSent)
             .callSid(callSid)
