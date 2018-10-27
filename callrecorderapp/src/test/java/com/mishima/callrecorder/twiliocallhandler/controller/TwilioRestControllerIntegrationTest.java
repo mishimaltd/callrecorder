@@ -191,6 +191,7 @@ public class TwilioRestControllerIntegrationTest {
     mvc.perform(post("/api/twilio/completed")
         .header("Authorization", getAuthHeader())
         .param("CallSid", "12345")
+        .param("To", "12345")
         .param("CallDuration", "20"))
         .andExpect(status().isNoContent());
   }

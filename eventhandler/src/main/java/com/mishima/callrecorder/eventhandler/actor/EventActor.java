@@ -83,6 +83,7 @@ public class EventActor extends AbstractActor {
     Optional<Call> result = callService.findBySid(callSid);
     if(result.isPresent()) {
       Call call = result.get();
+      call.setTo((String)event.getAttributes().get("To"));
       call.setDuration(Integer.valueOf(event.getAttributes().get("CallDuration").toString()));
       call.setLastUpdated(System.currentTimeMillis());
       callService.save(call);
