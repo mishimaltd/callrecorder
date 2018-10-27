@@ -1,8 +1,11 @@
 package com.mishima.callrecorder.commandhandler.actor;
 
 import akka.actor.AbstractActor;
+import com.mishima.callrecorder.accountservice.entity.Account;
+import com.mishima.callrecorder.accountservice.service.AccountService;
 import com.mishima.callrecorder.callservice.entity.Call;
 import com.mishima.callrecorder.callservice.service.CallService;
+import com.mishima.callrecorder.emailservice.EmailService;
 import com.mishima.callrecorder.publisher.Publisher;
 import com.mishima.callrecorder.publisher.entity.Command;
 import com.mishima.callrecorder.publisher.entity.Event;
@@ -26,15 +29,19 @@ public class CommandActor extends AbstractActor {
 
   private final Publisher eventPublisher;
   private final CallService callService;
+  private final AccountService accountService;
+  private final EmailService emailService;
   private final String eventTopicArn;
   private final S3Service s3Service;
   private final TwilioSMSService twilioSMSService;
   private final TwilioRecordingDeleterService twilioRecordingDeleterService;
 
-  public CommandActor(Publisher eventPublisher, CallService callService, String eventTopicArn,
+  public CommandActor(Publisher eventPublisher, CallService callService, AccountService accountService, EmailService emailService, String eventTopicArn,
       S3Service s3Service, TwilioSMSService twilioSMSService, TwilioRecordingDeleterService twilioRecordingDeleterService) {
     this.eventPublisher = eventPublisher;
     this.callService = callService;
+    this.accountService = accountService;
+    this.emailService = emailService;
     this.eventTopicArn = eventTopicArn;
     this.s3Service = s3Service;
     this.twilioSMSService = twilioSMSService;
@@ -58,9 +65,6 @@ public class CommandActor extends AbstractActor {
         break;
       case SendRecordingSMS:
         sendSms(command);
-        break;
-      case Billing:
-        billing(command);
         break;
       default:
         log.info("Unknown command type {}", command.getCommandType());
@@ -114,14 +118,30 @@ public class CommandActor extends AbstractActor {
     }
   }
 
-  private void billing(Command command) {
-  }
-
   private void sendEmail(Command command) {
     String callSid = command.getCallSid();
-    Optional<Call> result = callService.findBySid(callSid);
-    if(result.isPresent()) {
-
+    Optional<Call> callResult = callService.findBySid(callSid);
+    if(callResult.isPresent()) {
+      Call call = callResult.get();
+      Optional<Account> accountResult = accountService.findById(call.getAccountId());
+      if(accountResult.isPresent()) {
+        String emailAddress = accountResult.get().getUsername();
+        log.info("Sending recording link email to user {}", emailAddress);
+        String recordingLink = generatePresignedLink(call.getS3recordingUrl());
+        emailService.sendRecordingLink(emailAddress, recordingLink);
+        eventPublisher.publish(eventTopicArn, Event.builder()
+            .eventType(EventType.EmailNotificationSent)
+            .callSid(callSid)
+            .build());
+      } else {
+        log.error("Could not find account with id {}", call.getAccountId());
+        // Publish recording upload to s3 failed
+        eventPublisher.publish(eventTopicArn, Event.builder()
+            .eventType(EventType.Error)
+            .callSid(callSid)
+            .attribute("Message", "Unable to send Email to caller, could not find account")
+            .build());
+      }
     } else {
       log.error("Could not find call with sid {}", callSid);
       // Publish recording upload to s3 failed
@@ -158,9 +178,12 @@ public class CommandActor extends AbstractActor {
   }
 
   private String generatePayload(String s3FileKey) {
-    String preSignedUrl = s3Service.getPresignedUrl(s3FileKey, Date.from(LocalDateTime.now().plusDays(7).atZone(
+    return "Thanks for trying out our service! Click the link below to access your recording:\n\n" + generatePresignedLink(s3FileKey);
+  }
+
+  private String generatePresignedLink(String s3FileKey) {
+    return s3Service.getPresignedUrl(s3FileKey, Date.from(LocalDateTime.now().plusDays(7).atZone(
         ZoneId.systemDefault()).toInstant()));
-    return "Thanks for trying out our service! Click the link below to access your recording:\n\n" + preSignedUrl;
   }
 
 }

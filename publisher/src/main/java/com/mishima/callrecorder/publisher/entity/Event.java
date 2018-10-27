@@ -20,6 +20,7 @@ public class Event implements BaseMessage {
     CallEnded,
     CallRecordingUploaded,
     SMSNotificationSent,
+    EmailNotificationSent,
     Error
   }
 

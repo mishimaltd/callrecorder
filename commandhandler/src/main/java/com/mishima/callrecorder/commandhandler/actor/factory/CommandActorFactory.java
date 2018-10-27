@@ -3,9 +3,11 @@ package com.mishima.callrecorder.commandhandler.actor.factory;
 import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import com.mishima.callrecorder.accountservice.service.AccountService;
 import com.mishima.callrecorder.actor.ActorFactory;
 import com.mishima.callrecorder.callservice.service.CallService;
 import com.mishima.callrecorder.commandhandler.actor.CommandActor;
+import com.mishima.callrecorder.emailservice.EmailService;
 import com.mishima.callrecorder.publisher.Publisher;
 import com.mishima.callrecorder.s3service.service.S3Service;
 import com.mishima.callrecorder.twilioservice.TwilioRecordingDeleterService;
@@ -27,6 +29,12 @@ public class CommandActorFactory implements ActorFactory {
   private CallService callService;
 
   @Autowired
+  private AccountService accountService;
+
+  @Autowired
+  private EmailService emailService;
+
+  @Autowired
   private S3Service s3Service;
 
   @Autowired
@@ -41,6 +49,8 @@ public class CommandActorFactory implements ActorFactory {
         CommandActor.class,
         publisher,
         callService,
+        accountService,
+        emailService,
         eventTopicArn,
         s3Service,
         twilioSMSService,

@@ -50,6 +50,9 @@ public class EventActor extends AbstractActor {
       case SMSNotificationSent:
         smsNotificationSent(event);
         break;
+      case EmailNotificationSent:
+        emailNotificationSent(event);
+        break;
       case Error:
         error(event);
         break;
@@ -158,6 +161,21 @@ public class EventActor extends AbstractActor {
       log.error("Error occurred marking sms notification sent, could not find call by sid {}", callSid);
     }
   }
+
+  private void emailNotificationSent(Event event) {
+    String callSid = event.getCallSid();
+    Optional<Call> result = callService.findBySid(callSid);
+    if(result.isPresent()) {
+      Call call = result.get();
+      call.setStatus("EmailNotificationSent");
+      call.setLastUpdated(System.currentTimeMillis());
+      callService.save(call);
+      log.info("Marked call sid {} as email notification sent", callSid);
+    } else {
+      log.error("Error occurred marking email notification sent, could not find call by sid {}", callSid);
+    }
+  }
+
 
   private void error(Event event) {
     String callSid = event.getCallSid();

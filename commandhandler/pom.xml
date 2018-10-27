@@ -36,6 +36,11 @@
     </dependency>
     <dependency>
       <groupId>com.mishima</groupId>
+      <artifactId>accountservice-server</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.mishima</groupId>
       <artifactId>twilioservice</artifactId>
       <version>${project.version}</version>
     </dependency>
