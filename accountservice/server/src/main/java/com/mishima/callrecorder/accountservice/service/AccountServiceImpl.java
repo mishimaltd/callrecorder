@@ -96,6 +96,7 @@ public class AccountServiceImpl implements AccountService {
     if( result.isPresent()) {
       Account account = result.get();
       account.setPassword(bCryptPasswordEncoder.encode(newPassword));
+      account.setResetPasswordKey(null); // Reset key to invalidate url
       save(account);
       return true;
     } else {
