@@ -26,6 +26,7 @@ public class EmailServiceTest {
   }
 
   @Test
+  @Ignore
   public void sendCallRecording() throws Exception {
     Call call = Call.builder().created(System.currentTimeMillis()).to("9195927481").recordingDuration(23).costInCents(413).build();
     emailService.sendRecordingLink("mishimaltd@gmail.com", call, "https://callrecorder-app.herokuapp.com/api/accountservice/newPassword?username=mishimaltd@gmail.com&token=53379108-cca6-40ab-8602-f8f484198faa");
