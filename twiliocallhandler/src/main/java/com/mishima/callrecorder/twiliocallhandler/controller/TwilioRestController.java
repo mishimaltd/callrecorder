@@ -90,7 +90,6 @@ public class TwilioRestController {
   @ResponseBody
   @PostMapping(value = "/completed", produces = MediaType.APPLICATION_XML_VALUE)
   public ResponseEntity<byte[]> completed(@RequestParam("CallSid") String callSid,
-                                          @RequestParam("To") String to,
                                           @RequestParam("CallDuration") int callDuration) {
     log.info("Received call completed for call sid {}, duration {}", callSid, callDuration);
     // Publish call ended publisher
@@ -98,7 +97,6 @@ public class TwilioRestController {
     eventPublisher.publish(eventTopicArn, Event.builder()
       .eventType(EventType.CallEnded)
       .callSid(callSid)
-      .attribute("To", to)
       .attribute("CallDuration", callDuration)
       .build());
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -167,6 +165,13 @@ public class TwilioRestController {
                 .recordingStatusCallback(baseUri + "/recording").recordingStatusCallbackMethod(HttpMethod.POST)
                 .number(new Number.Builder(number).build()).build();
             response = new VoiceResponse.Builder().say(say).dial(dial).build();
+
+            // Send call number confirmed event
+            eventPublisher.publish(eventTopicArn, Event.builder()
+                .eventType(EventType.NumberConfirmed)
+                .callSid(callSid)
+                .attribute("Number", number)
+                .build());
           }
           return buildResponseEntity(response.toXml());
         }

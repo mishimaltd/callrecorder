@@ -38,6 +38,9 @@ public class EventActor extends AbstractActor {
       case CallInitiated:
         createCall(event);
         break;
+      case NumberConfirmed:
+        numberConfirmed(event);
+        break;
       case CallEnded:
         endCall(event);
         break;
@@ -78,12 +81,26 @@ public class EventActor extends AbstractActor {
     log.info("Saved new call with sid {}", callSid);
   }
 
+  private void numberConfirmed(Event event) {
+    String callSid = event.getCallSid();
+    Optional<Call> result = callService.findBySid(callSid);
+    if(result.isPresent()) {
+      String number = (String)event.getAttributes().get("Number");
+      Call call = result.get();
+      call.setTo(number);
+      call.setLastUpdated(System.currentTimeMillis());
+      callService.save(call);
+      log.info("Marked call sid {} as confirmed to forward to {}", callSid, number);
+    } else {
+      log.error("Error occurred ending call, could not find call by sid {}", callSid);
+    }
+  }
+
   private void endCall(Event event) {
     String callSid = event.getCallSid();
     Optional<Call> result = callService.findBySid(callSid);
     if(result.isPresent()) {
       Call call = result.get();
-      call.setTo((String)event.getAttributes().get("To"));
       call.setDuration(Integer.valueOf(event.getAttributes().get("CallDuration").toString()));
       call.setLastUpdated(System.currentTimeMillis());
       callService.save(call);

@@ -16,6 +16,7 @@ public class Event implements BaseMessage {
 
   public enum EventType {
     CallInitiated,
+    NumberConfirmed,
     CallRecordingCompleted,
     CallEnded,
     CallRecordingUploaded,
