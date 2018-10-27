@@ -38,12 +38,21 @@ public class EmailServiceImpl implements EmailService {
   private String fromAddress;
 
   @Override
-  public void sendResetPasswordLink(String emailAddress, String resetUrl) {
+  public void sendResetPasswordLink(String emailAddress, String url) {
     VelocityContext context = new VelocityContext();
-    context.put("resetUrl", resetUrl);
+    context.put("summary", "Reset your MyDialBuddy account password.");
+    context.put("header", "Reset Your Password");
+    context.put("linkInstructions", "Please click on the link below to reset the password on your MyDialBuddy account.");
+    context.put("link", url);
+    context.put("linkHelp", "This link will remain valid for 24 hours.");
     StringWriter sw = new StringWriter();
-    velocityEngine.mergeTemplate("/template/forgotPassword.vm", "utf-8", context, sw);
+    velocityEngine.mergeTemplate("/template/linkEmail.vm", "utf-8", context, sw);
     sendEmail(emailAddress, "Reset your MyDialBuddy password", sw.toString());
+  }
+
+  @Override
+  public void sendRecordingLink(String emailAddress, String url) {
+
   }
 
   private void sendEmail(String emailAddress, String subject, String body) {
