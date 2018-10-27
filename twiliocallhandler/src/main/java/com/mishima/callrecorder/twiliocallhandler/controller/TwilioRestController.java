@@ -66,9 +66,9 @@ public class TwilioRestController {
       response = new VoiceResponse.Builder().say(noAccount()).build();
     } else {
       // Store details of this call in the session
+      request.getSession().setAttribute("Trial", trial);
       request.getSession().setAttribute("CallSid", callSid);
       request.getSession().setAttribute("AccountId", accountId.get());
-      request.getSession().setAttribute("Trial", trial);
 
       // Publish call initiated publisher
       log.info("Publishing call initiated publisher.");

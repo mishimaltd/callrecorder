@@ -52,7 +52,15 @@ public class EmailServiceImpl implements EmailService {
 
   @Override
   public void sendRecordingLink(String emailAddress, String url) {
-
+    VelocityContext context = new VelocityContext();
+    context.put("summary", "Your call recording is available!");
+    context.put("header", "Your Call Recording");
+    context.put("linkInstructions", "Please click on the link below to access your call recording.");
+    context.put("link", url);
+    context.put("linkHelp", "All your call recordings are stored securely in the cloud. The above link will remain valid for 7 days. Your If you want to access this recording after 7 days please log onto your dashboard at <a href=\"https://www.mydialbuddy.com/private/dashboard\">https://www.mydialbuddy.com/private/dashboard</a>.");
+    StringWriter sw = new StringWriter();
+    velocityEngine.mergeTemplate("/template/linkEmail.vm", "utf-8", context, sw);
+    sendEmail(emailAddress, "Your MyDialBuddy call recording", sw.toString());
   }
 
   private void sendEmail(String emailAddress, String subject, String body) {
