@@ -2,12 +2,9 @@ package com.mishima.callrecorder.emailservice;
 
 import com.mishima.callrecorder.callservice.entity.Call;
 import java.io.StringWriter;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -65,7 +62,7 @@ public class EmailServiceImpl implements EmailService {
     context.put("callTime", zdt.format(DateTimeFormatter.ofPattern("HH:mm")));
     context.put("callDate", zdt.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
     context.put("link", url);
-    context.put("duration", Math.ceil(call.getRecordingDuration() / 60.0));
+    context.put("duration", (int)Math.ceil(call.getRecordingDuration() / 60.0));
     context.put("cost",  NumberFormat.getCurrencyInstance(Locale.US).format(call.getCostInCents() / 100.0));
     context.put("linkHelp", "All your call recordings are stored securely in the cloud. The above link will remain valid for 7 days. Your If you want to access this recording after 7 days please log onto your dashboard at <a href=\"https://www.mydialbuddy.com/private/dashboard\">https://www.mydialbuddy.com/private/dashboard</a>.");
     StringWriter sw = new StringWriter();
