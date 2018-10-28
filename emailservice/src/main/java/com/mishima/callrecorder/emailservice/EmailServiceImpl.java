@@ -60,7 +60,6 @@ public class EmailServiceImpl implements EmailService {
     ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, UTC);
     VelocityContext context = new VelocityContext();
     context.put("number", call.getTo());
-    context.put("callTime", zdt.format(DateTimeFormatter.ofPattern("HH:mm")));
     context.put("callDate", zdt.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
     context.put("link", url);
     context.put("duration", (int)Math.ceil(call.getRecordingDuration() / 60.0));

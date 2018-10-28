@@ -247,7 +247,7 @@
                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                             <tr>
                                 <td style="padding: 20px; font-family: 'Lato', sans-serif; font-size: 14px; line-height: 20px; color: #333333;">
-                                    <p style="margin: 0;">You called $number at $callTime on $callDate. Please use the link below to access your recording:</p>
+                                    <p style="margin: 0;">You called $number on $callDate. Please use the link below to access your recording.</p>
                                     <p style="margin: 20px 0px 20px 0px;"><a href="$link">$link</a></p>
                                     <p style="margin: 0;">Your call recording lasted $duration minutes and $cost will be charged to your account.</p>
                                     <p style="margin: 20px 0px 0px 0px;">All your call recordings are stored securely in the cloud. The above link will remain valid for 7 days. If you want to access this recording after 7 days please visit your private <a href="https://www.mydialbuddy.com/private/dashboard">dashboard</a>.</p>
