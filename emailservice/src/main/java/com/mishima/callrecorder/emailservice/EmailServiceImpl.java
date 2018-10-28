@@ -1,10 +1,11 @@
 package com.mishima.callrecorder.emailservice;
 
+import static java.time.ZoneOffset.UTC;
+
 import com.mishima.callrecorder.callservice.entity.Call;
 import java.io.StringWriter;
 import java.text.NumberFormat;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -56,7 +57,7 @@ public class EmailServiceImpl implements EmailService {
   @Override
   public void sendRecordingLink(String emailAddress, Call call, String url) {
     Instant instant = Instant.ofEpochMilli ( call.getCreated() );
-    ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
+    ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, UTC);
     VelocityContext context = new VelocityContext();
     context.put("number", call.getTo());
     context.put("callTime", zdt.format(DateTimeFormatter.ofPattern("HH:mm")));
