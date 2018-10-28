@@ -1,0 +1,219 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=yes">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>MyDialBuddy | Effortless Call Recording</title>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <!-- Custom fonts for this template -->
+  <link href="//s3.amazonaws.com/callrecorder-static/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <link href="//s3.amazonaws.com/callrecorder-static/vendor/simple-line-icons/css/simple-line-icons.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic|Arvo" rel="stylesheet" type="text/css">
+
+  <!-- Custom styles for this template -->
+  <link href="//s3.amazonaws.com/callrecorder-static/css/landing-page.min.css" rel="stylesheet">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-125423284-1"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-125423284-1');
+    </script>
+
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-dark bg-dark static-top">
+  <div>
+    <a class="navbar-brand" href="/">
+      <div class="logo-title"><i class="icon-microphone m-auto text-white icon-logo"></i>MyDialBuddy</div>
+    </a>
+  </div>
+  <ul class="list-inline mt-1">
+    <li sec:authorize="isAuthenticated()" class="list-inline-item"><a class="text-white" th:href="@{/private/dashboard}">Dashboard</a></li>
+    <li sec:authorize="isAuthenticated()" class="list-inline-item"><span class="text-white">|</span></li>
+    <li sec:authorize="isAuthenticated()" class="list-inline-item"><a class="text-white" th:href="@{/private/profile}">My Profile</a></li>
+    <li sec:authorize="isAnonymous()" class="list-inline-item"><a class="text-white" th:href="@{/public/register}">Register</a></li>
+    <li class="list-inline-item">&nbsp;&nbsp;</li>
+    <li sec:authorize="isAnonymous()" class="list-inline-item"><a class="btn btn-sm btn-primary" th:href="@{/public/login}">Log In</a></li>
+    <li sec:authorize="isAuthenticated()" class="list-inline-item"><a class="btn btn-sm btn-primary" th:href="@{/public/logout}">Logout</a></li>
+  </ul>
+</nav>
+
+<!-- Masthead -->
+<header class="masthead text-white text-center">
+  <div class="overlay"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-xl-9 mx-auto">
+        <h1 class="mb-5">Call our toll-free trial number for five minutes of free call recording!</h1>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="toll-free">
+  <div class="container-fluid text-center text-white toll-free-number">
+    <i class="icon-phone m-auto"></i> (844) 565 4545 (Toll-free trial number)
+  </div>
+</section>
+
+
+<!-- Icons Grid -->
+<section class="features-icons bg-light text-center">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <h2>Just follow these simple steps!</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-3">
+        <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+          <div class="features-icons-icon d-flex">
+            <i class="icon-call-out m-auto text-primary"></i>
+          </div>
+          <p class="lead mb-0">Just call our toll-free automated number from your cellphone or SMS-enabled phone*</p>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+          <div class="features-icons-icon d-flex">
+            <i class="icon-screen-smartphone m-auto text-primary"></i>
+          </div>
+          <p class="lead mb-0">Follow the simple automated instructions. Your call will be automatically forwarded</p>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="features-icons-item mx-auto mb-0 mb-lg-3">
+          <div class="features-icons-icon d-flex">
+            <i class="icon-microphone m-auto text-primary"></i>
+          </div>
+          <p class="lead mb-0">We will record your call in high-quality audio. The recipient will see the call as coming from your number</p>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="features-icons-item mx-auto mb-0 mb-lg-3">
+          <div class="features-icons-icon d-flex">
+            <i class="icon-envelope m-auto text-primary"></i>
+          </div>
+          <p class="lead mb-0">At the end of your call, just hang up. We will send a text message to you with a link to your recording</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Image Showcases -->
+<section class="showcase">
+  <div class="container-fluid p-0">
+    <div class="row no-gutters">
+      <div class="col-lg-6 text-white order-lg-2 showcase-img" style="background-image: url('img/trial-call.jpg');"></div>
+      <div class="col-lg-6 order-lg-1 my-auto showcase-text">
+        <h2>Register your account today</h2>
+        <p class="lead mb-0">You only pay for what you use. Just 20&#162;/minute!</p>
+        <p class="lead mb-0">Register as many phone numbers as you like.</p>
+        <p class="lead mb-0">All calls recorded in high-quality audio.</p>
+        <p class="lead mb-0">Get access to your entire call history and call recordings from your secure account dashboard at any time.</p>
+        <div class="showcase-link">
+          <a class="btn btn-md btn-primary" th:href="@{/public/register}">Register now!</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action -->
+<section class="call-to-action text-white text-center">
+  <div class="overlay"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-xl-9 mx-auto">
+        <h3 class="mb-4">Ready to get started?</h3>
+      </div>
+      <div class="col-md-10 col-lg-8 col-xl-7 mx-auto">
+        <a class="btn btn-md btn-primary"  th:href="@{/public/register}">Register now!</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trial call information -->
+<div class="container-fluid bg-light">
+  <div class="row">
+    <div class="col-1"></div>
+    <div class="col-10 trial-notes">
+      <p>* Our trial service only supports cellphones because the recording link will be sent to you by text message once you have finished your trial call. Registered users can use any phone type and will receive recording links by email. Registered users have access to all recording history from their secure account dashboard.</p>
+    </div>
+    <div class="col-1"></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer bg-light">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6 h-100 text-center text-lg-left my-auto">
+        <ul class="list-inline mb-2">
+          <li class="list-inline-item">
+            <a th:href="@{/public/services}">Our Service</a>
+          </li>
+          <li class="list-inline-item">|</li>
+          <li class="list-inline-item">
+            <a th:href="@{/public/contact}">Contact</a>
+          </li>
+          <li class="list-inline-item">|</li>
+          <li class="list-inline-item">
+            <a th:href="@{/public/terms}">Terms of Use</a>
+          </li>
+          <li class="list-inline-item">|</li>
+          <li class="list-inline-item">
+            <a th:href="@{/public/privacy}">Privacy Policy</a>
+          </li>
+        </ul>
+        <p class="text-muted small mb-4 mb-lg-0">&copy; MyDialBuddy 2018. All Rights Reserved.</p>
+      </div>
+      <div class="col-lg-6 h-100 text-center text-lg-right my-auto">
+        <ul class="list-inline mb-0">
+          <li class="list-inline-item mr-3">
+            <a href="#">
+              <i class="fa fa-facebook fa-2x fa-fw"></i>
+            </a>
+          </li>
+          <li class="list-inline-item mr-3">
+            <a href="#">
+              <i class="fa fa-twitter fa-2x fa-fw"></i>
+            </a>
+          </li>
+          <li class="list-inline-item">
+            <a href="#">
+              <i class="fa fa-instagram fa-2x fa-fw"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap core JavaScript -->
+<script src="//s3.amazonaws.com/callrecorder-static/vendor/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+
+</html>
