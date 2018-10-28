@@ -56,11 +56,11 @@ public class EmailServiceImpl implements EmailService {
 
   @Override
   public void sendRecordingLink(String emailAddress, Call call, String url) {
-    Instant instant = Instant.ofEpochMilli ( call.getCreated() );
+    Instant instant = Instant.ofEpochMilli (call.getCreated());
     ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, UTC);
     VelocityContext context = new VelocityContext();
     context.put("number", call.getTo());
-    context.put("callDate", zdt.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+    context.put("callDate", zdt.format(DateTimeFormatter.ofPattern("MMM d, yyyy")));
     context.put("link", url);
     context.put("duration", (int)Math.ceil(call.getRecordingDuration() / 60.0));
     context.put("cost",  NumberFormat.getCurrencyInstance(Locale.US).format(call.getCostInCents() / 100.0));
