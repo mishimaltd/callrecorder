@@ -178,7 +178,7 @@ public class CommandActor extends AbstractActor {
   }
 
   private String generatePayload(String s3FileKey) {
-    return "Thanks for trying out our service! Click the link below to access your recording:\n\n" + generatePresignedLink(s3FileKey);
+    return "Thanks for trying out MyDialBuddy! Click the link below to access your recording:\n\n" + generatePresignedLink(s3FileKey) + "\n\nVisit http://www.mydialbuddy.com to register an account today!";
   }
 
   private String generatePresignedLink(String s3FileKey) {
