@@ -1,5 +1,6 @@
 package com.mishima.callrecorder.twiliocallhandler.controller;
 
+import com.google.common.collect.ImmutableMap;
 import com.mishima.callrecorder.accountservice.entity.Account;
 import com.mishima.callrecorder.accountservice.service.AccountService;
 import com.mishima.callrecorder.publisher.Publisher;
@@ -12,8 +13,7 @@ import com.twilio.twiml.VoiceResponse;
 import com.twilio.twiml.voice.Dial;
 import com.twilio.twiml.voice.Gather;
 import com.twilio.twiml.voice.Number;
-import com.twilio.twiml.voice.Say;
-import com.twilio.twiml.voice.Say.Voice;
+import com.twilio.twiml.voice.Play;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -35,6 +35,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/twilio")
 public class TwilioRestController {
+
+  private static final String basePlayUri = "https://s3.amazonaws.com/callrecorder-static/voice/";
+
+  private static final ImmutableMap<Character, String> digitsToFileMap = ImmutableMap.<Character, java.lang.String>builder()
+      .put('0', "zero.mp3")
+      .put('1', "one.mp3")
+      .put('2', "two.mp3")
+      .put('3', "three.mp3")
+      .put('4', "four.mp3")
+      .put('5', "five.mp3")
+      .put('6', "six.mp3")
+      .put('7', "seven.mp3")
+      .put('8', "eight.mp3")
+      .put('9', "nine.mp3")
+      .build();
 
   @Autowired
   private AccountService accountService;
@@ -63,7 +78,7 @@ public class TwilioRestController {
     Optional<String> accountId = getAccountId(trial, from);
     if(!accountId.isPresent()) {
       log.info("No account found for incoming call from {}", from);
-      response = new VoiceResponse.Builder().say(noAccount()).build();
+      response = new VoiceResponse.Builder().play(noAccount()).build();
     } else {
       // Store details of this call in the session
       request.getSession().setAttribute("Trial", trial);
@@ -81,8 +96,8 @@ public class TwilioRestController {
           .build());
       // Generate response
       Gather gather = new Gather.Builder().action(baseUri + "/confirm").method(HttpMethod.POST)
-          .timeout(20).say(instructions()).build();
-      response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
+          .timeout(20).play(instructions(trial)).build();
+      response = new VoiceResponse.Builder().gather(gather).play(noResponse()).build();
     }
     return buildResponseEntity(response.toXml());
   }
@@ -113,17 +128,20 @@ public class TwilioRestController {
     if (!StringUtils.hasText(digits)) {
       log.info("Did not capture any digits from the call");
       Gather gather = new Gather.Builder().action(baseUri + "/confirm").method(HttpMethod.POST)
-          .timeout(20).say(noDigits()).build();
-      response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
+          .timeout(20).play(noDigits()).build();
+      response = new VoiceResponse.Builder().gather(gather).play(noResponse()).build();
       return buildResponseEntity(response.toXml());
     } else {
       // Store captured number in session
       request.getSession().setAttribute("Number", digits);
 
       log.info("Confirming digits with caller");
-      Gather gather = new Gather.Builder().action(baseUri + "/confirmed")
-          .method(HttpMethod.POST).numDigits(1).timeout(20).say(confirm(digits)).build();
-      response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
+      Gather.Builder builder = new Gather.Builder().action(baseUri + "/confirmed")
+          .method(HttpMethod.POST).numDigits(1).timeout(20);
+      confirm(builder, digits);
+      Gather gather = builder.build();
+
+      response = new VoiceResponse.Builder().gather(gather).play(noResponse()).build();
     }
     return buildResponseEntity(response.toXml());
   }
@@ -139,32 +157,30 @@ public class TwilioRestController {
     if (!StringUtils.hasText(digits)) {
       log.info("Did not capture any digits from the call");
       Gather gather = new Gather.Builder().action(baseUri + "/confirm").method(HttpMethod.POST)
-          .timeout(20).say(noDigits()).build();
-      response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
+          .timeout(20).play(noDigits()).build();
+      response = new VoiceResponse.Builder().gather(gather).play(noResponse()).build();
     } else {
+      // Get trial option from session
+      boolean trial = (Boolean)request.getSession().getAttribute("Trial");
       if ("1".equals(digits)) {
         String number = (String)request.getSession().getAttribute("Number");
         log.info("Caller confirmed number {}, validating...", number);
         if(!dialledNumberValidator.checkNumberIsValid(number)) {
           log.info("Requested number to dial invalid, ask for digits again");
           Gather gather = new Gather.Builder().action(baseUri + "/confirm").method(HttpMethod.POST)
-              .timeout(20).say(invalidNumber()).build();
-          response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
+              .timeout(20).play(invalidNumber()).build();
+          response = new VoiceResponse.Builder().gather(gather).play(noResponse()).build();
         } else {
-          // Get trial option from session
-          boolean trial = (Boolean)request.getSession().getAttribute("Trial");
           if( trial) {
-            Say say = say("Connecting your trial call, this call will automatically disconnect after 5 minutes.");
             Dial dial = new Dial.Builder().callerId(from).record(Dial.Record.RECORD_FROM_ANSWER).timeout(30).timeLimit(300)
                 .recordingStatusCallback(baseUri + "/recording").recordingStatusCallbackMethod(HttpMethod.POST)
                 .number(new Number.Builder(number).build()).build();
-            response = new VoiceResponse.Builder().say(say).dial(dial).build();
+            response = new VoiceResponse.Builder().play(play("trial_connect.mp3")).dial(dial).build();
           } else {
-            Say say = say("Connecting your call.");
             Dial dial = new Dial.Builder().callerId(from).record(Dial.Record.RECORD_FROM_ANSWER).timeout(30)
                 .recordingStatusCallback(baseUri + "/recording").recordingStatusCallbackMethod(HttpMethod.POST)
                 .number(new Number.Builder(number).build()).build();
-            response = new VoiceResponse.Builder().say(say).dial(dial).build();
+            response = new VoiceResponse.Builder().play(play("connect.mp3")).dial(dial).build();
 
             // Send call number confirmed event
             eventPublisher.publish(eventTopicArn, Event.builder()
@@ -178,8 +194,8 @@ public class TwilioRestController {
       } else {
         log.info("Caller did not confirm number, ask for digits again");
         Gather gather = new Gather.Builder().action(baseUri + "/confirm").method(HttpMethod.POST)
-            .timeout(20).say(instructions()).build();
-        response = new VoiceResponse.Builder().gather(gather).say(noResponse()).build();
+            .timeout(20).play(instructions(trial)).build();
+        response = new VoiceResponse.Builder().gather(gather).play(noResponse()).build();
       }
     }
     return buildResponseEntity(response.toXml());
@@ -229,39 +245,37 @@ public class TwilioRestController {
   }
 
 
-  private Say instructions() {
-    return say("Please enter the number you wish to call on your keypad followed by the pound or hash key.");
+  private Play instructions(boolean trial) {
+    return trial? play("trial.mp3"): play("welcome.mp3");
   }
 
-  private Say confirm(String digits) {
-    StringBuilder confirmDigits = new StringBuilder();
-    String delim = "";
+  private void confirm(Gather.Builder builder, String digits) {
+    builder.play(play("i_heard.mp3"));
     for (char c : digits.toCharArray()) {
-      confirmDigits.append(delim).append(c);
-      delim = ",";
+      if(digitsToFileMap.containsKey(c)) {
+        builder.play(play(digitsToFileMap.get(c)));
+      }
     }
-    return say("I heard " + confirmDigits
-        + ". Is that correct? Press 1 to confirm or any other key to try again.");
   }
 
-  private Say noDigits() {
-    return say("Sorry, I didn't get that. Please enter the number you wish to call on your keypad followed by the pound or hash key.");
+  private Play noDigits() {
+    return play("im_sorry.mp3");
   }
 
-  private Say noResponse() {
-    return say("Sorry I didn't get any input, Goodbye!");
+  private Play noResponse() {
+    return play("no_input.mp3");
   }
 
-  private Say noAccount() {
-    return say("Please visit our website to register an account with this phone number!");
+  private Play noAccount() {
+    return play("no_account.mp3");
   }
 
-  private Say invalidNumber() {
-    return say("I'm sorry, that appears to be an invalid number. Please note that only calls to domestic and non-premium numbers are supported. Please enter the number you wish to call on your keypad followed by the pound or hash key.");
+  private Play invalidNumber() {
+    return play("invalid_number.mp3");
   }
 
-  private Say say(String message) {
-    return new Say.Builder(message).voice(Voice.ALICE).build();
+  private Play play(String file) {
+    return new Play.Builder().url(basePlayUri + file).loop(0).build();
   }
 
 }

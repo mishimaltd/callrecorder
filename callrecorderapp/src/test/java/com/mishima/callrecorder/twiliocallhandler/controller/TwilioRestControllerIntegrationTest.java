@@ -80,7 +80,7 @@ public class TwilioRestControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_XML))
         .andExpect(content().xml(
-            "<Response><Gather timeout=\"20\" action=\"" + baseUrl + "/confirm\" method=\"POST\"><Say voice=\"alice\">Please enter the number you wish to call on your keypad followed by the pound or hash key.</Say></Gather><Say voice=\"alice\">Sorry I didn't get any input, Goodbye!</Say></Response>"
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Gather action=\"http://localhost:8080/api/confirm\" method=\"POST\" timeout=\"20\"><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/welcome.mp3</Play></Gather><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/no_input.mp3</Play></Response>"
         ));
   }
 
@@ -94,7 +94,7 @@ public class TwilioRestControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_XML))
         .andExpect(content().xml(
-            "<Response><Gather timeout=\"20\" numDigits=\"1\" action=\"http://localhost:8080/api/confirmed\" method=\"POST\"><Say voice=\"alice\">I heard 5,5,6,6,7,7. Is that correct? Press 1 to confirm or any other key to try again.</Say></Gather><Say voice=\"alice\">Sorry I didn't get any input, Goodbye!</Say></Response>"
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Gather action=\"http://localhost:8080/api/confirmed\" method=\"POST\" numDigits=\"1\" timeout=\"20\"><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/i_heard.mp3</Play><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/five.mp3</Play><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/five.mp3</Play><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/six.mp3</Play><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/six.mp3</Play><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/seven.mp3</Play><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/seven.mp3</Play></Gather><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/no_input.mp3</Play></Response>"
         ));
   }
 
@@ -107,7 +107,7 @@ public class TwilioRestControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_XML))
         .andExpect(content().xml(
-            "<Response><Gather timeout=\"20\" action=\"http://localhost:8080/api/confirm\" method=\"POST\"><Say voice=\"alice\">Sorry, I didn't get that. Please enter the number you wish to call on your keypad followed by the pound or hash key.</Say></Gather><Say voice=\"alice\">Sorry I didn't get any input, Goodbye!</Say></Response>"
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Gather action=\"http://localhost:8080/api/confirm\" method=\"POST\" timeout=\"20\"><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/im_sorry.mp3</Play></Gather><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/no_input.mp3</Play></Response>"
         ));
   }
 
@@ -125,14 +125,14 @@ public class TwilioRestControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_XML))
         .andExpect(content().xml(
-            "<Response><Say voice=\"alice\">Connecting your call.</Say><Dial timeout=\"30\" callerId=\"9195924466\" record=\"record-from-answer\" recordingStatusCallback=\"http://localhost:8080/api/recording\" recordingStatusCallbackMethod=\"POST\"><Number>9196658899</Number></Dial></Response>"
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/connect.mp3</Play><Dial callerId=\"9195924466\" record=\"record-from-answer\" recordingStatusCallback=\"http://localhost:8080/api/recording\" recordingStatusCallbackMethod=\"POST\" timeout=\"30\"><Number>9196658899</Number></Dial></Response>"
         ));
   }
 
   @Test
   public void givenInvalidDigitsConfirmedThenReturnMessageAndInstructions() throws Exception {
     String dialNumber = "19009634465";
-    mvc.perform(post("/api/twilio/confirmed")
+    mvc.perform(post("/api/twilio/confirmed").sessionAttr("Trial", false)
         .header("Authorization", getAuthHeader())
         .param("CallSid", "12345")
         .param("From", accountPhoneNumber)
@@ -141,13 +141,13 @@ public class TwilioRestControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_XML))
         .andExpect(content().xml(
-            "<Response><Gather timeout=\"20\" action=\"http://localhost:8080/api/confirm\" method=\"POST\"><Say voice=\"alice\">I'm sorry, that appears to be an invalid number. Please note that only calls to domestic and non-premium numbers are supported. Please enter the number you wish to call on your keypad followed by the pound or hash key.</Say></Gather><Say voice=\"alice\">Sorry I didn't get any input, Goodbye!</Say></Response>"
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Gather action=\"http://localhost:8080/api/confirm\" method=\"POST\" timeout=\"20\"><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/invalid_number.mp3</Play></Gather><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/no_input.mp3</Play></Response>"
         ));
   }
 
   @Test
   public void givenDigitsUnconfirmedThenReturnRetry() throws Exception {
-    mvc.perform(post("/api/twilio/confirmed")
+    mvc.perform(post("/api/twilio/confirmed").sessionAttr("Trial", false)
         .header("Authorization", getAuthHeader())
         .param("CallSid", "12345")
         .param("From", "54321")
@@ -156,7 +156,7 @@ public class TwilioRestControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_XML))
         .andExpect(content().xml(
-            "<Response><Gather timeout=\"20\" action=\"http://localhost:8080/api/confirm\" method=\"POST\"><Say voice=\"alice\">Please enter the number you wish to call on your keypad followed by the pound or hash key.</Say></Gather><Say voice=\"alice\">Sorry I didn't get any input, Goodbye!</Say></Response>"
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Gather action=\"http://localhost:8080/api/confirm\" method=\"POST\" timeout=\"20\"><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/welcome.mp3</Play></Gather><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/no_input.mp3</Play></Response>"
         ));
   }
 
@@ -170,7 +170,7 @@ public class TwilioRestControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_XML))
         .andExpect(content().xml(
-            "<Response><Gather timeout=\"20\" action=\"http://localhost:8080/api/confirm\" method=\"POST\"><Say voice=\"alice\">Sorry, I didn't get that. Please enter the number you wish to call on your keypad followed by the pound or hash key.</Say></Gather><Say voice=\"alice\">Sorry I didn't get any input, Goodbye!</Say></Response>"
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Gather action=\"http://localhost:8080/api/confirm\" method=\"POST\" timeout=\"20\"><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/im_sorry.mp3</Play></Gather><Play loop=\"0\">https://s3.amazonaws.com/callrecorder-static/voice/no_input.mp3</Play></Response>"
         ));
   }
 
