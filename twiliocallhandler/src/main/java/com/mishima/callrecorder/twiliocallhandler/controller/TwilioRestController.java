@@ -275,7 +275,7 @@ public class TwilioRestController {
   }
 
   private Play play(String file) {
-    return new Play.Builder().url(basePlayUri + file).loop(0).build();
+    return new Play.Builder().url(basePlayUri + file).build();
   }
 
 }
