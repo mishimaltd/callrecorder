@@ -11,7 +11,7 @@ public class SEOController {
 
   @RequestMapping(value = "/robots.txt")
   public void robots(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    response.getWriter().write("User-agent: *\nDisallow: /private/\nDisallow: /contact\nDisallow: /forgot\nDisallow: /login\nDisallow: /privacy\nDisallow: /register\nDisallow: /reset\nDisallow: /terms\n");
+    response.getWriter().write("User-agent: *\nSitemap: https://www.mydialbuddy.com/sitemap.xml\nDisallow: /private/\nDisallow: /contact\nDisallow: /forgot\nDisallow: /login\nDisallow: /privacy\nDisallow: /register\nDisallow: /reset\nDisallow: /terms\n");
   }
 
   @RequestMapping(value = "/sitemap.xml")
