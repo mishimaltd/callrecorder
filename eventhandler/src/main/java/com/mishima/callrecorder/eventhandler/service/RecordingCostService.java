@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RecordingCostService {
 
-  public static int costPerMinute = 20;
+  public static int costPerMinute = 10;
 
   public int calculateCost(int recordingDurationInSeconds) {
     int durationInMinutes = 0;
