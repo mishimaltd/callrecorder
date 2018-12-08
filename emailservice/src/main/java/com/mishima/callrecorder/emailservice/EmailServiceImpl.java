@@ -10,6 +10,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.velocity.VelocityContext;
@@ -31,6 +33,8 @@ public class EmailServiceImpl implements EmailService {
 
   private VelocityEngine velocityEngine;
 
+  private final ExecutorService executorService = Executors.newCachedThreadPool();
+
   @PostConstruct
   public void init() {
     velocityEngine = new VelocityEngine();
@@ -44,6 +48,12 @@ public class EmailServiceImpl implements EmailService {
 
   @Value("${smtp.from.address}")
   private String fromAddress;
+
+
+  @Override
+  public void sendNotification(String subject, String body) {
+    sendEmail(fromAddress, subject, body);
+  }
 
   @Override
   public void sendResetPasswordLink(String emailAddress, String url) {
@@ -71,19 +81,21 @@ public class EmailServiceImpl implements EmailService {
   }
 
   private void sendEmail(String emailAddress, String subject, String body) {
-    MimeMessagePreparator messagePreparator = mimeMessage -> {
-      MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
-      messageHelper.setFrom(fromAddress);
-      messageHelper.setTo(emailAddress);
-      messageHelper.setSubject(subject);
-      messageHelper.setText(body, true);
-    };
-    try {
-      javaMailSender.send(messagePreparator);
-      log.info("Sent email to {}", emailAddress);
-    } catch( MailException ex) {
-      log.error("Error occurred sending email -> {}", ex);
-    }
+    executorService.submit(() -> {
+      MimeMessagePreparator messagePreparator = mimeMessage -> {
+        MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
+        messageHelper.setFrom(fromAddress);
+        messageHelper.setTo(emailAddress);
+        messageHelper.setSubject(subject);
+        messageHelper.setText(body, true);
+      };
+      try {
+        javaMailSender.send(messagePreparator);
+        log.info("Sent email to {}", emailAddress);
+      } catch( MailException ex) {
+        log.error("Error occurred sending email -> {}", ex);
+      }
+    });
   }
 
 }

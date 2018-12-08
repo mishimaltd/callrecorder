@@ -3,6 +3,7 @@ package com.mishima.callrecorder.eventhandler.actor;
 import akka.actor.AbstractActor;
 import com.mishima.callrecorder.callservice.entity.Call;
 import com.mishima.callrecorder.callservice.service.CallService;
+import com.mishima.callrecorder.emailservice.EmailService;
 import com.mishima.callrecorder.eventhandler.service.RecordingCostService;
 import com.mishima.callrecorder.publisher.Publisher;
 import com.mishima.callrecorder.publisher.entity.Command;
@@ -16,13 +17,15 @@ public class EventActor extends AbstractActor {
 
   private final CallService callService;
   private final Publisher publisher;
+  private final EmailService emailService;
   private final String commandTopicArn;
 
   private final RecordingCostService recordingCostService = new RecordingCostService();
 
-  public EventActor(CallService callService, Publisher publisher, String commandTopicArn) {
+  public EventActor(CallService callService, Publisher publisher, EmailService emailService, String commandTopicArn) {
     this.callService = callService;
     this.publisher = publisher;
+    this.emailService = emailService;
     this.commandTopicArn = commandTopicArn;
   }
 
@@ -78,6 +81,7 @@ public class EventActor extends AbstractActor {
         .lastUpdated(now)
         .build();
     callService.save(call);
+    emailService.sendNotification("Incoming call received from " + call.getFrom(), "");
     log.info("Saved new call with sid {}", callSid);
   }
 
@@ -105,6 +109,7 @@ public class EventActor extends AbstractActor {
       call.setLastUpdated(System.currentTimeMillis());
       callService.save(call);
       log.info("Marked call sid {} as completed", callSid);
+      emailService.sendNotification("Call finished from " + call.getFrom(), String.format("Call duration %s seconds", call.getDuration()));
     } else {
       log.error("Error occurred ending call, could not find call by sid {}", callSid);
     }
