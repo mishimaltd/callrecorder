@@ -15,7 +15,6 @@ public class MvcConfig implements WebMvcConfigurer {
     registry.addViewController("/public/home").setViewName("home");
     registry.addViewController("/public/login").setViewName("login");
     registry.addViewController("/public/forgot").setViewName("forgot");
-    registry.addViewController("/public/services").setViewName("services");
     registry.addViewController("/public/contact").setViewName("contact");
     registry.addViewController("/public/terms").setViewName("terms");
     registry.addViewController("/public/privacy").setViewName("privacy");
@@ -24,6 +23,7 @@ public class MvcConfig implements WebMvcConfigurer {
     registry.addViewController("/public/forgot").setViewName("forgot");
     registry.addViewController("/public/reset").setViewName("reset");
     registry.addViewController("/public/error").setViewName("error");
+    registry.addViewController("/private/dashboard").setViewName("dashboard");
     registry.addViewController("/private/account").setViewName("account");
     registry.setOrder(Ordered.LOWEST_PRECEDENCE);
   }

@@ -33,6 +33,7 @@ public class Call {
   private boolean paid;
   private long paymentDate;
 
+  @Indexed
   private long created;
   private long lastUpdated;
 
