@@ -51,8 +51,8 @@ public class EmailServiceImpl implements EmailService {
 
 
   @Override
-  public void sendNotification(String subject, String body) {
-    sendEmail(fromAddress, subject, body);
+  public void sendNotification(String emailAddress, String subject, String body) {
+    sendEmail(emailAddress, subject, body);
   }
 
   @Override

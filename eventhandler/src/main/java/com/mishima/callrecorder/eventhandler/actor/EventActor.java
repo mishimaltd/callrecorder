@@ -18,14 +18,16 @@ public class EventActor extends AbstractActor {
   private final CallService callService;
   private final Publisher publisher;
   private final EmailService emailService;
+  private final String notificationEmailAddress;
   private final String commandTopicArn;
 
   private final RecordingCostService recordingCostService = new RecordingCostService();
 
-  public EventActor(CallService callService, Publisher publisher, EmailService emailService, String commandTopicArn) {
+  public EventActor(CallService callService, Publisher publisher, EmailService emailService, String notificationEmailAddress, String commandTopicArn) {
     this.callService = callService;
     this.publisher = publisher;
     this.emailService = emailService;
+    this.notificationEmailAddress = notificationEmailAddress;
     this.commandTopicArn = commandTopicArn;
   }
 
@@ -81,7 +83,7 @@ public class EventActor extends AbstractActor {
         .lastUpdated(now)
         .build();
     callService.save(call);
-    emailService.sendNotification("Incoming call received from " + call.getFrom(), "");
+    emailService.sendNotification(notificationEmailAddress,"Incoming call received from " + call.getFrom(), "");
     log.info("Saved new call with sid {}", callSid);
   }
 
@@ -109,7 +111,7 @@ public class EventActor extends AbstractActor {
       call.setLastUpdated(System.currentTimeMillis());
       callService.save(call);
       log.info("Marked call sid {} as completed", callSid);
-      emailService.sendNotification("Call finished from " + call.getFrom(), String.format("Call duration %s seconds", call.getDuration()));
+      emailService.sendNotification(notificationEmailAddress,"Call finished from " + call.getFrom(), String.format("Call duration %s seconds", call.getDuration()));
     } else {
       log.error("Error occurred ending call, could not find call by sid {}", callSid);
     }

@@ -4,7 +4,7 @@ import com.mishima.callrecorder.callservice.entity.Call;
 
 public interface EmailService {
 
-  void sendNotification(String subject, String body);
+  void sendNotification(String emailAddress, String subject, String body);
 
   void sendResetPasswordLink(String emailAddress, String url);
 

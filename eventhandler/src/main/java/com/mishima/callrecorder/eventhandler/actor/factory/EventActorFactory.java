@@ -24,11 +24,14 @@ public class EventActorFactory implements ActorFactory {
   @Autowired
   private EmailService emailService;
 
+  @Value("${email.notification.address}")
+  private String notificationEmailAddress;
+
   @Value("${command.topic.arn}")
   private String commandTopicArn;
 
   @Override
   public ActorRef create(ActorContext context) {
-    return context.actorOf(Props.create(EventActor.class, callService, publisher, emailService, commandTopicArn));
+    return context.actorOf(Props.create(EventActor.class, callService, publisher, emailService, notificationEmailAddress, commandTopicArn));
   }
 }
