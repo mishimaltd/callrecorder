@@ -20,8 +20,7 @@
           <tr>
             <th>Date</th>
             <th>To</th>
-            <th>Duration</th>
-            <th>Cost ($)</th>
+            <th>Cost</th>
             <th>Action</th>
           </tr>
           </thead>
@@ -44,14 +43,26 @@
     var table = $('#calls').DataTable({
       "ajax": "/api/callservice/calls",
       "columns": [
-        { "data": "created" },
+        { "data": "created",
+          "className": "dt-center",
+          "render": function(data, type, row, meta) {
+            return new Date(data).toLocaleDateString('en-US', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric'
+            });
+          }
+        },
         { "data": "to" },
-        { "data": "recordingDuration" },
-        { "data": "costInCents" },
+        { "data": "costInCents",
+          "render": function(data, type, row, meta) {
+            return '$' + (data/100).toFixed(2);
+          }
+        },
         { "data": "s3recordingUrl",
           "render": function(data, type, row, meta) {
             if( data && data != null ) {
-              return "<button class='btn btn-sm btn-primary btn-block'>Download</button>"
+              return "<button class='btn btn-sm btn-primary'>Download</button>"
             } else {
               return "";
             }
@@ -63,7 +74,7 @@
     // Download recording
     $('#calls tbody').on( 'click', 'button', function () {
       var data = table.row( $(this).parents('tr')).data();
-      var recordingUrl = data['s3recordingUrl'];
+      var recordingUrl = data['sid'];
       window.open('/api/callservice/recording/' + recordingUrl);
     });
 

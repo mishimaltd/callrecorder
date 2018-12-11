@@ -2,7 +2,6 @@ package com.mishima.callrecorder.callservice.controller;
 
 import static org.hibernate.validator.internal.util.CollectionHelper.newHashMap;
 
-import com.amazonaws.services.xray.model.Http;
 import com.amazonaws.util.IOUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mishima.callrecorder.accountservice.entity.Account;
@@ -11,7 +10,6 @@ import com.mishima.callrecorder.callservice.entity.Call;
 import com.mishima.callrecorder.callservice.service.CallService;
 import com.mishima.callrecorder.callservice.service.RecordingService;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +46,7 @@ public class CallRestController {
   private RecordingService recordingService;
 
   private final ObjectMapper om = new ObjectMapper();
+
 
   @ResponseBody
   @GetMapping(value = "/calls", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -102,10 +101,29 @@ public class CallRestController {
     return call;
   }
 
-  @GetMapping("/recording/{key}")
-  public void download(@PathVariable("key") String key, HttpServletResponse res) throws Exception {
-    res.setContentType("audio/mpeg");
-    IOUtils.copy(recordingService.download(key), res.getOutputStream());
+  @GetMapping("/recording/{sid}")
+  public void download(@PathVariable("sid") String sid, HttpServletResponse res) throws Exception {
+    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    Optional<Account> accountResult = accountService.findByUsername(username);
+    if( accountResult.isPresent()) {
+      Account account = accountResult.get();
+      Optional<Call> callResult = callService.findBySid(sid);
+      if(callResult.isPresent()) {
+        Call call = callResult.get();
+        if(call.getAccountId().equals(account.getId())) {
+          String key = call.getS3recordingUrl();
+          res.setHeader("Content-Disposition", "attachment; filename=\"recording.mpeg\"");
+          res.setContentType("audio/mpeg");
+          IOUtils.copy(recordingService.download(key), res.getOutputStream());
+        } else {
+          res.sendError(HttpServletResponse.SC_FORBIDDEN, "Unauthorized request for call " + sid);
+        }
+      } else {
+        res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not find call with sid " + sid);
+      }
+    } else {
+      res.sendError(HttpServletResponse.SC_BAD_REQUEST, "No account found for username " + username);
+    }
   }
 
   private ResponseEntity<byte[]> response(Object model, HttpStatus status) throws Exception {
