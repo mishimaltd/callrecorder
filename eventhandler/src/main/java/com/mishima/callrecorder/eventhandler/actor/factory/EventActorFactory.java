@@ -5,6 +5,7 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import com.mishima.callrecorder.actor.ActorFactory;
 import com.mishima.callrecorder.callservice.service.CallService;
+import com.mishima.callrecorder.emailservice.EmailService;
 import com.mishima.callrecorder.eventhandler.actor.EventActor;
 import com.mishima.callrecorder.publisher.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +21,14 @@ public class EventActorFactory implements ActorFactory {
   @Autowired
   private Publisher publisher;
 
+  @Autowired
+  private EmailService emailService;
+
   @Value("${command.topic.arn}")
   private String commandTopicArn;
 
   @Override
   public ActorRef create(ActorContext context) {
-    return context.actorOf(Props.create(EventActor.class, callService, publisher, commandTopicArn));
+    return context.actorOf(Props.create(EventActor.class, callService, publisher, emailService, commandTopicArn));
   }
 }
