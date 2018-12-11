@@ -61,7 +61,7 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
-    var table = $('#calls').DataTable({
+    $('#calls').DataTable({
       "ajax": "/api/callservice/calls",
       "columns": [
         { "data": "created",
@@ -87,20 +87,13 @@
           "className": "text-center",
           "render": function(data, type, row, meta) {
             if( data && data != null ) {
-              return "<button class='btn btn-sm btn-primary'>Download</button>"
+              return "<a class='btn btn-sm btn-primary' href='/api/callservice/recording/" + row['sid'] + "' download>Download</a>"
             } else {
               return "";
             }
           }
         }
        ]
-    });
-
-    // Download recording
-    $('#calls tbody').on( 'click', 'button', function () {
-      var data = table.row( $(this).parents('tr')).data();
-      var recordingUrl = data['sid'];
-      window.open('/api/callservice/recording/' + recordingUrl);
     });
 
   });
