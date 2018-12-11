@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <div th:replace="fragments/template.html :: header"></div>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"/>
+</head>
+
+<body>
+
+<!-- Navigation -->
+<div th:replace="fragments/template.html :: navigation"></div>
+
+<section class="main-body">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <table id="calls" class="table table-striped table-bordered" style="width:100%">
+          <thead>
+          <tr>
+            <th>Created</th>
+            <th>To</th>
+            <th>Call Duration<br>(minutes)</th>
+            <th>Recording Duration<br>(minutes)</th>
+            <th>Cost ($)</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<div th:replace="fragments/template.html :: footer"></div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    var table = $('#calls').DataTable({
+      "ajax": "/api/callservice/calls",
+      "columns": [
+        { "data": "created" },
+        { "data": "to" },
+        { "data": "duration" },
+        { "data": "recordingDuration" },
+        { "data": "costInCents" },
+        { "data": "s3recordingUrl",
+          "render": function(data, type, row, meta) {
+            if( data && data != null ) {
+              return "<button class='btn btn-sm btn-info btn-block'>Download</button>"
+            } else {
+              return "";
+            }
+          }
+        }
+       ]
+    });
+
+    // Download recording
+    $('#calls tbody').on( 'click', 'button', function () {
+      var data = table.row( $(this).parents('tr')).data();
+      var recordingUrl = data['s3recordingUrl'];
+      window.open('/api/callservice/recording/' + recordingUrl);
+    });
+
+  });
+</script>
+
+</body>
+</html>

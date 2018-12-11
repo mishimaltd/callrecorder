@@ -1,15 +1,29 @@
 package com.mishima.callrecorder.callservice.controller;
 
+import static org.hibernate.validator.internal.util.CollectionHelper.newHashMap;
+
+import com.amazonaws.services.xray.model.Http;
 import com.amazonaws.util.IOUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mishima.callrecorder.accountservice.entity.Account;
+import com.mishima.callrecorder.accountservice.service.AccountService;
 import com.mishima.callrecorder.callservice.entity.Call;
 import com.mishima.callrecorder.callservice.service.CallService;
 import com.mishima.callrecorder.callservice.service.RecordingService;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +42,32 @@ public class CallRestController {
   private CallService callService;
 
   @Autowired
+  private AccountService accountService;
+
+  @Autowired
   private RecordingService recordingService;
+
+  private final ObjectMapper om = new ObjectMapper();
+
+  @ResponseBody
+  @GetMapping(value = "/calls", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<byte[]> getCallsForCurrentUser() throws Exception {
+    Map<String,Object> model = newHashMap();
+    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    Optional<Account> account = accountService.findByUsername(username);
+    if( account.isPresent()) {
+      String accountId = account.get().getId();
+      log.info("Retrieving calls by accountId {}", accountId);
+      List<Call> calls = callService.findByAccountId(accountId);
+      log.info("Found {} calls for accountId {}", calls.size(), accountId);
+      model.put("data", calls);
+    } else {
+      log.error("Could not find account for username {}", username);
+      model.put("data", Collections.emptyList());
+    }
+    return response(model, HttpStatus.OK);
+  }
+
 
   @ResponseBody
   @GetMapping(value = "/getCallsByAccountId", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -69,4 +108,11 @@ public class CallRestController {
     IOUtils.copy(recordingService.download(key), res.getOutputStream());
   }
 
+  private ResponseEntity<byte[]> response(Object model, HttpStatus status) throws Exception {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    headers.setCacheControl("no-cache");
+    String content = om.writeValueAsString(model);
+    return new ResponseEntity<>(content.getBytes(StandardCharsets.UTF_8), headers, status);
+  }
 }

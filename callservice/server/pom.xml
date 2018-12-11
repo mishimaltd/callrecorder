@@ -27,6 +27,11 @@
     </dependency>
     <dependency>
       <groupId>com.mishima</groupId>
+      <artifactId>accountservice-server</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.mishima</groupId>
       <artifactId>publisher</artifactId>
       <version>${project.version}</version>
     </dependency>
