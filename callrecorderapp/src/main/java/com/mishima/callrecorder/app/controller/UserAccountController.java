@@ -54,9 +54,12 @@ public class UserAccountController {
   }
 
 
-  private int getAccountBalance(String accountId) {
-    return callService.findByAccountId(accountId).stream().filter(
+  private double getAccountBalance(String accountId) {
+    int balanceInCents = callService.findByAccountId(accountId).stream().filter(
         call -> !call.isTrial() && !call.isPaid()).mapToInt(Call::getCostInCents).sum();
+    double balanceInDollars = (double)balanceInCents / 100d;
+    log.info("Current account balance for accountId {} is ${}", accountId, balanceInDollars);
+    return balanceInDollars;
   }
 
 
