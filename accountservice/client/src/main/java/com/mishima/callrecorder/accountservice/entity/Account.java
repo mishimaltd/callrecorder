@@ -28,6 +28,10 @@ public class Account {
   private List<String> phoneNumbers;
   private String stripeId;
 
+  // Credit card details
+  private String lastFourDigitsOfCard;
+  private String cardType;
+
   private Account() {}
 
   public static Builder builder() {
@@ -43,6 +47,8 @@ public class Account {
     private List<String> roles = new ArrayList<>();
     private List<String> phoneNumbers;
     private String stripeId;
+    private String lastFourDigitsOfCard;
+    private String cardType;
 
     public Builder username(String username) {
       this.username = username;
@@ -79,6 +85,16 @@ public class Account {
       return this;
     }
 
+    public Builder lastFourDigitsOfCard(String lastFourDigitsOfCard) {
+      this.lastFourDigitsOfCard = lastFourDigitsOfCard;
+      return this;
+    }
+
+    public Builder cardType(String cardType) {
+      this.cardType = cardType;
+      return this;
+    }
+
     public Account build() {
       Account account = new Account();
       account.setUsername(username);
@@ -88,6 +104,8 @@ public class Account {
       account.setRoles(roles);
       account.setPhoneNumbers(phoneNumbers);
       account.setStripeId(stripeId);
+      account.setLastFourDigitsOfCard(lastFourDigitsOfCard);
+      account.setCardType(cardType);
       return account;
     }
   }

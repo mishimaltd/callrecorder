@@ -4,6 +4,7 @@ import com.mishima.callrecorder.accountservice.entity.Account;
 import com.mishima.callrecorder.accountservice.entity.CreateAccountRequest;
 import com.mishima.callrecorder.accountservice.entity.CreateAccountResponse;
 import com.mishima.callrecorder.accountservice.persistence.AccountRepository;
+import com.mishima.callrecorder.accountservice.utils.CardType;
 import com.mishima.callrecorder.domain.validation.EntityValidator;
 import com.mishima.callrecorder.domain.validation.ValidationResult;
 import com.mishima.callrecorder.stripe.client.StripeClient;
@@ -121,6 +122,8 @@ public class AccountServiceImpl implements AccountService {
         .roles(Collections.singletonList("ROLE_USER"))
         .phoneNumbers(Collections.singletonList(request.getPhoneNumber()))
         .stripeId(stripeCustomerId)
+        .lastFourDigitsOfCard(request.getCardNumber().substring(request.getCardNumber().length() -4 ))
+        .cardType(CardType.detect(request.getCardNumber()).toString())
         .build();
   }
 

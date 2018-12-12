@@ -6,6 +6,7 @@ import static com.mishima.callrecorder.app.config.SecurityConstants.HEADER_STRIN
 import static com.mishima.callrecorder.app.config.SecurityConstants.TOKEN_PREFIX;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mishima.callrecorder.accountservice.entity.Account;
 import com.mishima.callrecorder.accountservice.entity.CreateAccountRequest;
 import com.mishima.callrecorder.accountservice.persistence.AccountRepository;
+import com.mishima.callrecorder.accountservice.utils.CardType;
 import com.mishima.callrecorder.app.Application;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -167,6 +169,8 @@ public class AccountRestControllerIntegrationTest {
     String accountJson = om.writeValueAsString(result.get("account"));
     Account account = om.readValue(accountJson, new TypeReference<Account>(){});
     assertEquals(username, account.getUsername());
+    assertEquals(CardType.VISA.toString(), account.getCardType());
+    assertEquals("1881", account.getLastFourDigitsOfCard());
     accountId = account.getId();
   }
 
