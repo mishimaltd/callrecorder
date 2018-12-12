@@ -31,6 +31,9 @@
       </div>
       <div class="col-md-8">
         <p class="lead mb-4">This account is billed to: <span class="credit-card d-inline-block" th:attrappend="class=${' ' + card.type}"></span> <b><span th:text="${card.name}"></span> ending in <span th:text="${card.lastDigits}"></span></b></p>
+        <p class="lead mb-4">
+          <button id="change-card" class="btn btn-sm btn-primary">Change Credit Card</button>
+        </p>
         <div>
           <p class="lead">Current account balance: <b>$<span th:text="${#numbers.formatDecimal(currentBalance, 1, 'COMMA', 2, 'POINT')}"></span></b></p>
         </div>
